@@ -264,5 +264,14 @@ __pycache__/
 *.DS_Store
 Json
 C#
-Localize
 *cache.meta
+
+Unity_Example/Library/
+
+Unity_Example/Temp/
+
+Unity_Example/UserSettings/
+
+*.csproj
+
+*.sln

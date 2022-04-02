@@ -1,5 +1,4 @@
 using System;
-using Nireus;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,7 +33,7 @@ using System.Linq;
         ret result | string.remove_last ','
     end
 }}
-namespace {{x.namespace_with_top_module}}
+namespace Example
 {
 	{{~if x.comment != '' ~}}
 	/// <summary>
@@ -44,7 +43,6 @@ namespace {{x.namespace_with_top_module}}
     [Config]
     public partial class {{name}} : ACategory<{{x.value_type}}>
     {
-        [ClearOnReload]
         public static {{name}} Instance { get; private set; }
 
         public {{name}}()
@@ -72,7 +70,7 @@ namespace {{x.namespace_with_top_module}}
 
         protected override void _CustomDeserialize(string json, JsonSerializerSettings settings)
         {
-            Single = JsonHelper.FromJson<{{x.value_type}}>(json, settings);
+            Single = JsonConvert.DeserializeObject<{{x.value_type}}>(json, settings);
             Single.EndInit();
         }
         {{~else if x.is_list_table~}}
@@ -105,7 +103,7 @@ namespace {{x.namespace_with_top_module}}
 
         protected override void _CustomDeserialize(string json, JsonSerializerSettings settings)
         {
-            var list = JsonHelper.FromJson<List<{{x.value_type}}>>(json, settings);
+            var list = JsonConvert.DeserializeObject<List<{{x.value_type}}>>(json, settings);
             
             foreach(var v in list)
             {

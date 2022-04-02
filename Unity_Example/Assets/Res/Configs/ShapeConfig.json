@@ -1,0 +1,117 @@
+{
+  "1": {
+    "id": 1,
+    "alias_shape": {
+      "$type": "Triangle",
+      "a": 1,
+      "b": 2,
+      "c": 3
+    },
+    "name_shape": {
+      "$type": "Triangle",
+      "a": 1,
+      "b": 2,
+      "c": 3
+    },
+    "in_one_shapes": [
+      {
+        "$type": "Triangle",
+        "a": 1,
+        "b": 2,
+        "c": 3
+      },
+      {
+        "$type": "Circle",
+        "radius": 1
+      },
+      {
+        "$type": "Rectangle",
+        "width": 1,
+        "height": 2
+      }
+    ],
+    "rows_shapes": [
+      {
+        "$type": "Triangle",
+        "a": 1,
+        "b": 2,
+        "c": 3
+      },
+      {
+        "$type": "Circle",
+        "radius": 1
+      },
+      {
+        "$type": "Rectangle",
+        "width": 1,
+        "height": 2
+      }
+    ],
+    "rows_sep_shapes": [
+      {
+        "$type": "Triangle",
+        "a": 1,
+        "b": 2,
+        "c": 3
+      },
+      {
+        "$type": "Circle",
+        "radius": 1
+      },
+      {
+        "$type": "Rectangle",
+        "width": 1,
+        "height": 2
+      }
+    ],
+    "colums_shapes": [
+      {
+        "$type": "Triangle",
+        "a": 1,
+        "b": 2,
+        "c": 3
+      },
+      {
+        "$type": "Circle",
+        "radius": 1
+      },
+      {
+        "$type": "Rectangle",
+        "width": 1,
+        "height": 2
+      }
+    ]
+  },
+  "2": {
+    "id": 2,
+    "alias_shape": {
+      "$type": "Circle",
+      "radius": 1
+    },
+    "name_shape": {
+      "$type": "Circle",
+      "radius": 1
+    },
+    "in_one_shapes": [],
+    "rows_shapes": [],
+    "rows_sep_shapes": [],
+    "colums_shapes": []
+  },
+  "3": {
+    "id": 3,
+    "alias_shape": {
+      "$type": "Rectangle",
+      "width": 1,
+      "height": 2
+    },
+    "name_shape": {
+      "$type": "Rectangle",
+      "width": 1,
+      "height": 2
+    },
+    "in_one_shapes": [],
+    "rows_shapes": [],
+    "rows_sep_shapes": [],
+    "colums_shapes": []
+  }
+}

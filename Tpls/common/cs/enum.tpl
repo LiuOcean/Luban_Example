@@ -5,7 +5,7 @@
     items = x.items
 ~}}
 
-using Sirenix.OdinInspector;
+//using Sirenix.OdinInspector;
 
 namespace {{namespace_with_top_module}}
 {
@@ -21,7 +21,8 @@ namespace {{namespace_with_top_module}}
     {
         {{~ for item in items ~}}
 {{~if item.comment != '' ~}}
-        [LabelText("{{item.escape_comment}}")]
+        // 导入 Odin 插件后, 修改 Tpls/common/cs/enum.tpl 即可
+        //[LabelText("{{item.escape_comment}}")]
 {{~end~}}
         {{item.name}} = {{item.value}},
         

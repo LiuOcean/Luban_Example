@@ -1,0 +1,16 @@
+{
+  "1": {
+    "id": 1,
+    "name": {
+      "key": "example/one",
+      "text": "第一个"
+    }
+  },
+  "2": {
+    "id": 2,
+    "name": {
+      "key": "example/two",
+      "text": "第二个"
+    }
+  }
+}

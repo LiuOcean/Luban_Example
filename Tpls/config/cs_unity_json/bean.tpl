@@ -1,5 +1,4 @@
 using System;
-using Nireus;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 {{
@@ -94,7 +93,7 @@ using System.Collections.Generic;
     export_fields = x.export_fields
     hierarchy_export_fields = x.hierarchy_export_fields
 }}
-namespace {{x.namespace_with_top_module}}
+namespace Example
 {
 	{{~if x.comment != '' ~}}
 	/// <summary>

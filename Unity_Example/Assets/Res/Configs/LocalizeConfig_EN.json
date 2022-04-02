@@ -1,0 +1,10 @@
+{
+  "example/one": {
+    "key": "example/one",
+    "text_en": "First"
+  },
+  "example/second": {
+    "key": "example/second",
+    "text_en": "Second"
+  }
+}
