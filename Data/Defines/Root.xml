@@ -1,0 +1,20 @@
+<root>
+	<topmodule name="Joyport"/>
+
+	<patch name="cn"/>
+	<patch name="en"/>
+
+	<group name="c" default="1"/> client
+	<group name="s" default="1"/> server
+	<group name="e" default="1"/> editor
+	
+	<import name="."/>
+	
+	<importexcel name="../Defines/Enums.xlsx" type="enum"/> 相对data目录
+	<importexcel name="../Defines/Tables.xlsx" type="table"/> 相对data目录
+	<importexcel name="../Defines/Beans.xlsx" type="bean"/> 相对data目录
+
+	<service name="server" manager="Tables" group="s"/>
+	<service name="client" manager="Tables" group="c"/>
+	<service name="all" manager="Tables" group="c,s,e"/>
+</root>
