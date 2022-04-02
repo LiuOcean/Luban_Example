@@ -1,3 +1,5 @@
-##	key	text_cn	text_en	text_tw
-##type	string	string	string	string
-##comment	key	中文	英文	繁中
+##,key,text_cn,text_en,text_tw
+##type,string,string,string,string
+##comment,多语言 key,中文,英文,繁中
+,example/one,第一个,First,第一个
+,example/second,第二个,Second,第二个

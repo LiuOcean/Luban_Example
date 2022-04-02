@@ -1,0 +1,4 @@
+<module name="RefGroup">
+    <refgroup name="TestGroup" ref="RefOneConfigCategory,
+                                    RefTwoConfigCategory"/>
+</module>

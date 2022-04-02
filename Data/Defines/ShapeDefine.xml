@@ -1,0 +1,16 @@
+<module name="">
+    <bean name="AShape">
+        <bean name="Triangle" alias="三角形">
+            <var name="a" type="float"/>
+            <var name="b" type="float"/>
+            <var name="c" type="float"/>
+        </bean>
+        <bean name="Circle" alias="圆形">
+            <var name="radius" type="float"/>
+        </bean>
+        <bean name="Rectangle" alias="矩形">
+            <var name="width" type="float"/>
+            <var name="height" type="float"/>
+        </bean>
+    </bean>
+</module>
