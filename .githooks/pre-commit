@@ -2,7 +2,14 @@
 
 # 注意 git hook 默认运行位置在 Config 文件夹下
 
-./auto_validation.sh
+./auto_validation.sh | while read line
+do
+    if echo $line | grep 不存在;
+    then
+        echo "当前配置存在错误引用, 请修复错误再进行推送!"
+        exit 1
+    fi
+done
 
 if [ $? -ne 0 ]; then
     echo "当前配置有错误, 请修复错误再进行推送!"
