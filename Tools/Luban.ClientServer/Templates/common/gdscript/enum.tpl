@@ -5,19 +5,16 @@
     items = x.items
 ~}}
 
-package {{namespace_with_top_module}};
 {{~if comment != '' ~}}
-/**
- * {{comment | html.escape}}
- */
+
+# {{comment | html.escape}}
 {{~end~}}
-public final class {{name}} {
+enum {{x.gdscript_full_name}}{
     {{~ for item in items ~}}
 {{~if item.comment != '' ~}}
-    /**
-     * {{item.escape_comment}}
-     */
+    {{item.name}} = {{item.int_value}}, # {{item.escape_comment}}
+{{~else~}}
+    {{item.name}} = {{item.int_value}},
 {{~end~}}
-    public static final int {{item.name}} = {{item.int_value}};
     {{~end~}}
 }
