@@ -10,4 +10,6 @@ dotnet ${GEN_CLIENT} -t Tpls -j cfg --generateonly --\
  --gen_types code_cs_dotnet_json,data_json2 \
  --naming_convention:bean_member under_scores \
  --cs:use_unity_vector \
+ --validate_root_dir Unity_Example/ \
+ --output:exclude_tags test \
  -s all

@@ -2,19 +2,31 @@
 
 # 注意 git hook 默认运行位置在 Config 文件夹下
 
-./auto_validation.sh | while read line
+./auto_validation.sh > .git/luban.log
+
+error=0
+
+while read line
 do
     if echo $line | grep 不存在;
     then
-        echo "当前配置存在错误引用, 请修复错误再进行推送!"
-        exit 1
+       ((error++))
     fi
-done
 
-if [ $? -ne 0 ]; then
+    if echo $line | grep 被过滤了;
+    then
+        ((error++))
+    fi
+done < .git/luban.log
+
+if [ $error -ne 0 ]; then
     echo "当前配置有错误, 请修复错误再进行推送!"
     exit 1
 fi
 
-# accept
-exit 0
+./unit_test_client.sh
+
+if [ $? -ne 0 ]; then
+    echo "未通过客户端单元测试, 请修复!"
+    exit 1
+fi
