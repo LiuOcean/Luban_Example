@@ -1,5 +1,7 @@
 # Luban_Example
 
+[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 本仓库是 [Luban](https://github.com/focus-creative-games/luban) 的示例
 
 [简单版文档](https://app.heptabase.com/w/514c9827e9627b063281903b68ed662773c45c845d90f8da1da04dd1e6fc08c4)
