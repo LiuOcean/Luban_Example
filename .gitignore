@@ -275,3 +275,6 @@ Unity_Example/UserSettings/
 *.csproj
 
 *.sln
+
+Unity_Example/Bundles/
+!Unity_Example/Packages/*

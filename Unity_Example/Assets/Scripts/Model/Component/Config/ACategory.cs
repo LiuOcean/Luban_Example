@@ -67,7 +67,8 @@ namespace Example
             }
             catch(Exception e)
             {
-                throw e;
+                Debug.LogError(e);
+                throw;
             }
         }
 

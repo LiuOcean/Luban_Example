@@ -1,15 +1,22 @@
-using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using YooAsset;
 
 namespace Example
 {
     public class UsageExample : MonoBehaviour
     {
-        private void Awake() { _Init().Forget(); }
+        private void Awake()
+        {
+            UniTaskScheduler.UnobservedTaskException += Debug.LogError;
+
+            _Init().Forget();
+        }
 
         private async UniTask _Init()
         {
+            await YooAssetsEx.InitializeAsync(YooAssetConfigEx.Get());
+
             ViewAssetLoader loader = new ViewAssetLoader();
 
             new ConfigComponent(new ConfigComponentConfig(loader, "Example", typeof(ConfigComponent).Assembly));

@@ -1,6 +1,8 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Encrypt;
+
 {{
     func encrypt_type_name(x)
         type = x.ctype.type_name
