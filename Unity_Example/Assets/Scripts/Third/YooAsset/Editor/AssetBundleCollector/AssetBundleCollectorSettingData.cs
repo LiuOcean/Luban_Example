@@ -232,7 +232,7 @@ namespace YooAsset.Editor
 		}
 
 		/// <summary>
-		/// 存储配置文件
+		/// 存储文件
 		/// </summary>
 		public static void SaveFile()
 		{
@@ -245,18 +245,6 @@ namespace YooAsset.Editor
 			}
 		}
 
-		/// <summary>
-		/// 修复配置文件
-		/// </summary>
-		public static void FixFile()
-		{
-			bool isFixed = Setting.FixConfigError();
-			if (isFixed)
-			{
-				IsDirty = true;
-			}
-		}
-		
 		/// <summary>
 		/// 清空所有数据
 		/// </summary>
@@ -372,9 +360,10 @@ namespace YooAsset.Editor
 		}
 
 		// 资源收集器编辑相关
-		public static void CreateCollector(AssetBundleCollectorGroup group)
+		public static void CreateCollector(AssetBundleCollectorGroup group, string collectPath)
 		{
 			AssetBundleCollector collector = new AssetBundleCollector();
+			collector.CollectPath = collectPath;
 			group.Collectors.Add(collector);
 			IsDirty = true;
 		}

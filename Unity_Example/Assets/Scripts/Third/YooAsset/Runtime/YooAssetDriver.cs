@@ -9,11 +9,6 @@ namespace YooAsset
 			YooAssets.InternalUpdate();
 		}
 
-		void OnDestroy()
-		{
-			YooAssets.InternalDestroy();
-		}
-
 		void OnApplicationQuit()
 		{
 			YooAssets.InternalDestroy();

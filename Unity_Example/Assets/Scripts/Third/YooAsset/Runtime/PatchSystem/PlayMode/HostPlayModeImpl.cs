@@ -33,7 +33,7 @@ namespace YooAsset
 			_fallbackHostServer = fallbackHostServer;
 
 			var operation = new HostPlayModeInitializationOperation(this);
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 			return operation;
 		}
 
@@ -43,7 +43,7 @@ namespace YooAsset
 		public UpdateStaticVersionOperation UpdateStaticVersionAsync(int timeout)
 		{
 			var operation = new HostPlayModeUpdateStaticVersionOperation(this, timeout);
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 			return operation;
 		}
 
@@ -53,7 +53,7 @@ namespace YooAsset
 		public UpdateManifestOperation UpdatePatchManifestAsync(int resourceVersion, int timeout)
 		{
 			var operation = new HostPlayModeUpdateManifestOperation(this, resourceVersion, timeout);
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 			return operation;
 		}
 
@@ -63,7 +63,7 @@ namespace YooAsset
 		public UpdateManifestOperation WeaklyUpdatePatchManifestAsync(int resourceVersion)
 		{
 			var operation = new HostPlayModeWeaklyUpdateManifestOperation(this, resourceVersion);
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 			return operation;
 		}
 
@@ -73,7 +73,7 @@ namespace YooAsset
 		public UpdatePackageOperation UpdatePackageAsync(int resourceVersion, int timeout)
 		{
 			var operation = new HostPlayModeUpdatePackageOperation(this, resourceVersion, timeout);
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 			return operation;
 		}
 
@@ -88,18 +88,16 @@ namespace YooAsset
 		}
 
 		/// <summary>
-		/// 获取未被使用的缓存文件路径集合
+		/// 清空未被使用的缓存文件
 		/// </summary>
-		public List<string> ClearUnusedCacheFilePaths()
+		public void ClearUnusedCacheFiles()
 		{
 			string cacheFolderPath = SandboxHelper.GetCacheFolderPath();
 			if (Directory.Exists(cacheFolderPath) == false)
-				return new List<string>();
+				return;
 
 			DirectoryInfo directoryInfo = new DirectoryInfo(cacheFolderPath);
-			FileInfo[] fileInfos = directoryInfo.GetFiles();
-			List<string> result = new List<string>(fileInfos.Length);
-			foreach (FileInfo fileInfo in fileInfos)
+			foreach (FileInfo fileInfo in directoryInfo.GetFiles())
 			{
 				bool used = false;
 				foreach (var patchBundle in LocalPatchManifest.BundleList)
@@ -111,9 +109,11 @@ namespace YooAsset
 					}
 				}
 				if (used == false)
-					result.Add(fileInfo.FullName);
+				{
+					YooLogger.Log($"Delete unused cache file : {fileInfo.Name}");
+					File.Delete(fileInfo.FullName);
+				}
 			}
-			return result;
 		}
 
 		/// <summary>
@@ -131,14 +131,14 @@ namespace YooAsset
 			foreach (var patchBundle in LocalPatchManifest.BundleList)
 			{
 				// 忽略缓存文件
-				if (CacheSystem.IsCached(patchBundle))
+				if (DownloadSystem.ContainsVerifyFile(patchBundle.FileHash))
 					continue;
 
 				// 忽略APP资源
 				// 注意：如果是APP资源并且哈希值相同，则不需要下载
 				if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
 				{
-					if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
+					if (appPatchBundle.IsBuildin && appPatchBundle.FileHash == patchBundle.FileHash)
 						continue;
 				}
 
@@ -163,14 +163,14 @@ namespace YooAsset
 			foreach (var patchBundle in LocalPatchManifest.BundleList)
 			{
 				// 忽略缓存文件
-				if (CacheSystem.IsCached(patchBundle))
+				if (DownloadSystem.ContainsVerifyFile(patchBundle.FileHash))
 					continue;
 
 				// 忽略APP资源
 				// 注意：如果是APP资源并且哈希值相同，则不需要下载
 				if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
 				{
-					if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
+					if (appPatchBundle.IsBuildin && appPatchBundle.FileHash == patchBundle.FileHash)
 						continue;
 				}
 
@@ -233,14 +233,14 @@ namespace YooAsset
 			foreach (var patchBundle in checkList)
 			{
 				// 忽略缓存文件
-				if (CacheSystem.IsCached(patchBundle))
+				if (DownloadSystem.ContainsVerifyFile(patchBundle.FileHash))
 					continue;
 
 				// 忽略APP资源
 				// 注意：如果是APP资源并且哈希值相同，则不需要下载
 				if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
 				{
-					if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
+					if (appPatchBundle.IsBuildin && appPatchBundle.FileHash == patchBundle.FileHash)
 						continue;
 				}
 
@@ -269,7 +269,7 @@ namespace YooAsset
 					continue;
 
 				// 忽略缓存文件
-				if (CacheSystem.IsCached(patchBundle))
+				if (DownloadSystem.ContainsVerifyFile(patchBundle.FileHash))
 					continue;
 
 				// 查询DLC资源
@@ -279,7 +279,7 @@ namespace YooAsset
 				}
 			}
 
-			return PatchHelper.ConvertToUnpackList(downloadList);
+			return ConvertToUnpackList(downloadList);
 		}
 
 		/// <summary>
@@ -301,13 +301,13 @@ namespace YooAsset
 					continue;
 
 				// 忽略缓存文件
-				if (CacheSystem.IsCached(patchBundle))
+				if (DownloadSystem.ContainsVerifyFile(patchBundle.FileHash))
 					continue;
 
 				downloadList.Add(patchBundle);
 			}
 
-			return PatchHelper.ConvertToUnpackList(downloadList);
+			return ConvertToUnpackList(downloadList);
 		}
 
 		// WEB相关
@@ -339,6 +339,26 @@ namespace YooAsset
 			return bundleInfo;
 		}
 
+		// 解压相关
+		public List<BundleInfo> ConvertToUnpackList(List<PatchBundle> unpackList)
+		{
+			List<BundleInfo> result = new List<BundleInfo>(unpackList.Count);
+			foreach (var patchBundle in unpackList)
+			{
+				var bundleInfo = ConvertToUnpackInfo(patchBundle);
+				result.Add(bundleInfo);
+			}
+			return result;
+		}
+		public BundleInfo ConvertToUnpackInfo(PatchBundle patchBundle)
+		{
+			// 注意：我们把流加载路径指定为远端下载地址
+			string streamingPath = PathHelper.MakeStreamingLoadPath(patchBundle.FileName);
+			streamingPath = PathHelper.ConvertToWWWPath(streamingPath);
+			BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromRemote, streamingPath, streamingPath);
+			return bundleInfo;
+		}
+
 		// 设置资源清单
 		internal void SetAppPatchManifest(PatchManifest patchManifest)
 		{
@@ -357,7 +377,7 @@ namespace YooAsset
 				throw new Exception("Should never get here !");
 
 			// 查询沙盒资源
-			if (CacheSystem.IsCached(patchBundle))
+			if (DownloadSystem.ContainsVerifyFile(patchBundle.FileHash))
 			{
 				BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromCache);
 				return bundleInfo;
@@ -366,7 +386,7 @@ namespace YooAsset
 			// 查询APP资源
 			if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
 			{
-				if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
+				if (appPatchBundle.IsBuildin && appPatchBundle.FileHash == patchBundle.FileHash)
 				{
 					BundleInfo bundleInfo = new BundleInfo(appPatchBundle, BundleInfo.ELoadMode.LoadFromStreaming);
 					return bundleInfo;

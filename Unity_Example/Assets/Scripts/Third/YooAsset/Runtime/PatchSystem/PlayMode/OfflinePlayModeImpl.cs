@@ -16,7 +16,7 @@ namespace YooAsset
 		{
 			_locationToLower = locationToLower;
 			var operation = new OfflinePlayModeInitializationOperation(this);
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 			return operation;
 		}
 
@@ -43,18 +43,8 @@ namespace YooAsset
 			if (patchBundle == null)
 				throw new Exception("Should never get here !");
 
-			// 查询沙盒资源
-			if (CacheSystem.IsCached(patchBundle))
-			{
-				BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromCache);
-				return bundleInfo;
-			}
-
-			// 查询APP资源
-			{
-				BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromStreaming);
-				return bundleInfo;
-			}
+			BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromStreaming);
+			return bundleInfo;
 		}
 		BundleInfo IBundleServices.GetBundleInfo(AssetInfo assetInfo)
 		{

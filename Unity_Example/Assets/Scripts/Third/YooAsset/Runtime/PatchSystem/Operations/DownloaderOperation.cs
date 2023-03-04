@@ -86,7 +86,7 @@ namespace YooAsset
 				TotalDownloadCount = downloadList.Count;
 				foreach (var patchBundle in downloadList)
 				{
-					TotalDownloadBytes += patchBundle.Bundle.FileSize;
+					TotalDownloadBytes += patchBundle.FileSize;
 				}
 			}
 		}
@@ -138,7 +138,7 @@ namespace YooAsset
 					// 下载成功
 					_removeList.Add(downloader);
 					CurrentDownloadCount++;
-					CurrentDownloadBytes += bundleInfo.Bundle.FileSize;
+					CurrentDownloadBytes += bundleInfo.FileSize;
 				}
 
 				// 移除已经完成的下载器（无论成功或失败）
@@ -170,7 +170,7 @@ namespace YooAsset
 						var operation = DownloadSystem.BeginDownload(bundleInfo, _failedTryAgain);
 						_downloaders.Add(operation);
 						_downloadList.RemoveAt(index);
-						OnStartDownloadFileCallback?.Invoke(bundleInfo.Bundle.BundleName, bundleInfo.Bundle.FileSize);
+						OnStartDownloadFileCallback?.Invoke(bundleInfo.BundleName, bundleInfo.FileSize);
 					}
 				}
 
@@ -180,7 +180,7 @@ namespace YooAsset
 					if (_failedList.Count > 0)
 					{
 						var failedDownloader = _failedList[0];
-						string fileName = failedDownloader.GetBundleInfo().Bundle.BundleName;
+						string fileName = failedDownloader.GetBundleInfo().BundleName;
 						Error = $"Failed to download file : {fileName}";
 						_steps = ESteps.Done;
 						Status = EOperationStatus.Failed;
@@ -205,7 +205,7 @@ namespace YooAsset
 		{
 			if (_steps == ESteps.None)
 			{
-				OperationSystem.StartOperation(this);
+				OperationSystem.StartOperaiton(this);
 			}
 		}
 

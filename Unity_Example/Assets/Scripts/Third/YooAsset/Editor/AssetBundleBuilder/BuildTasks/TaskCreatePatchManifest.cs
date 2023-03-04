@@ -37,11 +37,8 @@ namespace YooAsset.Editor
 			// 更新Unity内置资源包的引用关系
 			if (buildParameters.Parameters.BuildPipeline == EBuildPipeline.ScriptableBuildPipeline)
 			{
-				if(buildParameters.Parameters.BuildMode == EBuildMode.IncrementalBuild)
-				{
-					var buildResultContext = context.GetContextObject<TaskBuilding_SBP.BuildResultContext>();
-					UpdateBuiltInBundleReference(patchManifest, buildResultContext.Results);
-				}
+				var buildResultContext = context.GetContextObject<TaskBuilding_SBP.BuildResultContext>();
+				UpdateBuiltInBundleReference(patchManifest, buildResultContext.Results);
 			}
 
 			// 创建补丁清单文件
@@ -77,15 +74,16 @@ namespace YooAsset.Editor
 			foreach (var bundleInfo in buildMapContext.BundleInfos)
 			{
 				var bundleName = bundleInfo.BundleName;
-				string fileHash = GetBundleFileHash(bundleInfo, buildParameters);
-				string fileCRC = GetBundleFileCRC(bundleInfo, buildParameters);
-				long fileSize = GetBundleFileSize(bundleInfo, buildParameters);
+				string contentHash = bundleInfo.ContentHash;
+				string fileHash = bundleInfo.FileHash;
+				string fileCRC = bundleInfo.FileCRC;
+				long fileSize = bundleInfo.FileSize;
 				string[] tags = buildMapContext.GetBundleTags(bundleName);
 				bool isEncrypted = encryptionContext.IsEncryptFile(bundleName);
 				bool isBuildin = IsBuildinBundle(tags, buildinTags);
 				bool isRawFile = bundleInfo.IsRawFile;
 
-				PatchBundle patchBundle = new PatchBundle(bundleName, fileHash, fileCRC, fileSize, tags);
+				PatchBundle patchBundle = new PatchBundle(bundleName, contentHash, fileHash, fileCRC, fileSize, tags);
 				patchBundle.SetFlagsValue(isEncrypted, isBuildin, isRawFile);
 				result.Add(patchBundle);
 			}
@@ -104,33 +102,6 @@ namespace YooAsset.Editor
 					return true;
 			}
 			return false;
-		}
-		private string GetBundleFileHash(BuildBundleInfo bundleInfo, BuildParametersContext buildParametersContext)
-		{
-			var buildMode = buildParametersContext.Parameters.BuildMode;
-			if (buildMode == EBuildMode.DryRunBuild || buildMode == EBuildMode.SimulateBuild)
-				return "00000000000000000000000000000000"; //32位
-
-			string filePath = $"{buildParametersContext.PipelineOutputDirectory}/{bundleInfo.BundleName}";
-			return HashUtility.FileMD5(filePath);
-		}
-		private string GetBundleFileCRC(BuildBundleInfo bundleInfo, BuildParametersContext buildParametersContext)
-		{
-			var buildMode = buildParametersContext.Parameters.BuildMode;
-			if (buildMode == EBuildMode.DryRunBuild || buildMode == EBuildMode.SimulateBuild)
-				return "00000000"; //8位
-
-			string filePath = $"{buildParametersContext.PipelineOutputDirectory}/{bundleInfo.BundleName}";
-			return HashUtility.FileCRC32(filePath);
-		}
-		private long GetBundleFileSize(BuildBundleInfo bundleInfo, BuildParametersContext buildParametersContext)
-		{
-			var buildMode = buildParametersContext.Parameters.BuildMode;
-			if (buildMode == EBuildMode.DryRunBuild || buildMode == EBuildMode.SimulateBuild)
-				return 0;
-
-			string filePath = $"{buildParametersContext.PipelineOutputDirectory}/{bundleInfo.BundleName}";
-			return FileUtility.GetFileSize(filePath);
 		}
 
 		/// <summary>

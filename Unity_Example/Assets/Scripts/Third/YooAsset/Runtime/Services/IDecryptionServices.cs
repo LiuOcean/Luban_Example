@@ -5,6 +5,7 @@ namespace YooAsset
 	{
 		public string BundleName;
 		public string FileHash;
+		public string FileCRC;
 	}
 
 	public interface IDecryptionServices

@@ -14,7 +14,7 @@ namespace YooAsset
 			Download,
 			CheckDownload,
 			LoadFile,
-			CheckLoadFile,
+			CheckFile,
 			Done,
 		}
 
@@ -23,7 +23,7 @@ namespace YooAsset
 		private bool _isWaitForAsyncComplete = false;
 		private bool _isShowWaitForAsyncError = false;
 		private DownloaderBase _downloader;
-		private AssetBundleCreateRequest _createRequest;
+		private AssetBundleCreateRequest _cacheRequest;
 
 
 		public AssetBundleFileLoader(BundleInfo bundleInfo) : base(bundleInfo)
@@ -40,20 +40,29 @@ namespace YooAsset
 
 			if (_steps == ESteps.None)
 			{
+				if (MainBundleInfo.IsInvalid)
+				{
+					_steps = ESteps.Done;
+					Status = EStatus.Failed;
+					LastError = $"The bundle info is invalid : {MainBundleInfo.BundleName}";
+					YooLogger.Error(LastError);
+					return;
+				}
+
 				if (MainBundleInfo.LoadMode == BundleInfo.ELoadMode.LoadFromRemote)
 				{
 					_steps = ESteps.Download;
-					_fileLoadPath = MainBundleInfo.Bundle.CachedFilePath;
+					_fileLoadPath = MainBundleInfo.GetCacheLoadPath();
 				}
 				else if (MainBundleInfo.LoadMode == BundleInfo.ELoadMode.LoadFromStreaming)
 				{
 					_steps = ESteps.LoadFile;
-					_fileLoadPath = MainBundleInfo.Bundle.StreamingFilePath;
+					_fileLoadPath = MainBundleInfo.GetStreamingLoadPath();
 				}
 				else if (MainBundleInfo.LoadMode == BundleInfo.ELoadMode.LoadFromCache)
 				{
 					_steps = ESteps.LoadFile;
-					_fileLoadPath = MainBundleInfo.Bundle.CachedFilePath;
+					_fileLoadPath = MainBundleInfo.GetCacheLoadPath();
 				}
 				else
 				{
@@ -103,46 +112,47 @@ namespace YooAsset
 #endif
 
 				// Load assetBundle file
-				if (MainBundleInfo.Bundle.IsEncrypted)
+				if (MainBundleInfo.IsEncrypted)
 				{
 					if (AssetSystem.DecryptionServices == null)
-						throw new Exception($"{nameof(AssetBundleFileLoader)} need {nameof(IDecryptionServices)} : {MainBundleInfo.Bundle.BundleName}");
+						throw new Exception($"{nameof(AssetBundleFileLoader)} need {nameof(IDecryptionServices)} : {MainBundleInfo.BundleName}");
 
 					DecryptionFileInfo fileInfo = new DecryptionFileInfo();
-					fileInfo.BundleName = MainBundleInfo.Bundle.BundleName;
-					fileInfo.FileHash = MainBundleInfo.Bundle.FileHash;
+					fileInfo.BundleName = MainBundleInfo.BundleName;
+					fileInfo.FileHash = MainBundleInfo.FileHash;
+					fileInfo.FileCRC = MainBundleInfo.FileCRC;
 					ulong offset = AssetSystem.DecryptionServices.GetFileOffset(fileInfo);
 					if (_isWaitForAsyncComplete)
 						CacheBundle = AssetBundle.LoadFromFile(_fileLoadPath, 0, offset);
 					else
-						_createRequest = AssetBundle.LoadFromFileAsync(_fileLoadPath, 0, offset);
+						_cacheRequest = AssetBundle.LoadFromFileAsync(_fileLoadPath, 0, offset);
 				}
 				else
 				{
 					if (_isWaitForAsyncComplete)
 						CacheBundle = AssetBundle.LoadFromFile(_fileLoadPath);
 					else
-						_createRequest = AssetBundle.LoadFromFileAsync(_fileLoadPath);
+						_cacheRequest = AssetBundle.LoadFromFileAsync(_fileLoadPath);
 				}
-				_steps = ESteps.CheckLoadFile;
+				_steps = ESteps.CheckFile;
 			}
 
 			// 4. 检测AssetBundle加载结果
-			if (_steps == ESteps.CheckLoadFile)
+			if (_steps == ESteps.CheckFile)
 			{
-				if (_createRequest != null)
+				if (_cacheRequest != null)
 				{
 					if (_isWaitForAsyncComplete)
 					{
 						// 强制挂起主线程（注意：该操作会很耗时）
 						YooLogger.Warning("Suspend the main thread to load unity bundle.");
-						CacheBundle = _createRequest.assetBundle;
+						CacheBundle = _cacheRequest.assetBundle;
 					}
 					else
 					{
-						if (_createRequest.isDone == false)
+						if (_cacheRequest.isDone == false)
 							return;
-						CacheBundle = _createRequest.assetBundle;
+						CacheBundle = _cacheRequest.assetBundle;
 					}
 				}
 
@@ -151,15 +161,15 @@ namespace YooAsset
 				{
 					_steps = ESteps.Done;
 					Status = EStatus.Failed;
-					LastError = $"Failed to load assetBundle : {MainBundleInfo.Bundle.BundleName}";
+					LastError = $"Failed to load assetBundle : {MainBundleInfo.BundleName}";
 					YooLogger.Error(LastError);
 
 					// 注意：当缓存文件的校验等级为Low的时候，并不能保证缓存文件的完整性。
 					// 在AssetBundle文件加载失败的情况下，我们需要重新验证文件的完整性！
 					if (MainBundleInfo.LoadMode == BundleInfo.ELoadMode.LoadFromCache)
 					{
-						string cacheLoadPath = MainBundleInfo.Bundle.CachedFilePath;
-						if (CacheSystem.VerifyBundle(MainBundleInfo.Bundle, EVerifyLevel.High) != EVerifyResult.Succeed)
+						string cacheLoadPath = MainBundleInfo.GetCacheLoadPath();
+						if (DownloadSystem.CheckContentIntegrity(EVerifyLevel.High, cacheLoadPath, MainBundleInfo.FileSize, MainBundleInfo.FileCRC) == false)
 						{
 							if (File.Exists(cacheLoadPath))
 							{
@@ -195,7 +205,7 @@ namespace YooAsset
 					if (_isShowWaitForAsyncError == false)
 					{
 						_isShowWaitForAsyncError = true;
-						YooLogger.Error($"WaitForAsyncComplete failed ! Try load bundle : {MainBundleInfo.Bundle.BundleName} from remote with sync load method !");
+						YooLogger.Error($"WaitForAsyncComplete failed ! Try load bundle : {MainBundleInfo.BundleName} from remote with sync load method !");
 					}
 					break;
 				}

@@ -16,7 +16,7 @@ namespace YooAsset
 		{
 			_locationToLower = locationToLower;
 			var operation = new EditorSimulateModeInitializationOperation(this, simulatePatchManifestPath);
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 			return operation;
 		}
 

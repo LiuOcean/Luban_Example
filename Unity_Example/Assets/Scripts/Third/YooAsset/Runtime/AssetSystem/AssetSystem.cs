@@ -141,7 +141,7 @@ namespace YooAsset
 			if (assetInfo.IsInvalid)
 			{
 				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted(assetInfo.Error);
+				completedProvider.SetCompleted();
 				return completedProvider.CreateHandle<SceneOperationHandle>();
 			}
 
@@ -176,7 +176,7 @@ namespace YooAsset
 			if (assetInfo.IsInvalid)
 			{
 				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted(assetInfo.Error);
+				completedProvider.SetCompleted();
 				return completedProvider.CreateHandle<AssetOperationHandle>();
 			}
 
@@ -202,7 +202,7 @@ namespace YooAsset
 			if (assetInfo.IsInvalid)
 			{
 				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted(assetInfo.Error);
+				completedProvider.SetCompleted();
 				return completedProvider.CreateHandle<SubAssetsOperationHandle>();
 			}
 
@@ -273,7 +273,7 @@ namespace YooAsset
 		private static AssetBundleLoaderBase CreateAssetBundleLoaderInternal(BundleInfo bundleInfo)
 		{
 			// 如果加载器已经存在
-			AssetBundleLoaderBase loader = TryGetAssetBundleLoader(bundleInfo.Bundle.BundleName);
+			AssetBundleLoaderBase loader = TryGetAssetBundleLoader(bundleInfo.BundleName);
 			if (loader != null)
 				return loader;
 
@@ -293,7 +293,7 @@ namespace YooAsset
 			for (int i = 0; i < _loaders.Count; i++)
 			{
 				AssetBundleLoaderBase temp = _loaders[i];
-				if (temp.MainBundleInfo.Bundle.BundleName.Equals(bundleName))
+				if (temp.MainBundleInfo.BundleName.Equals(bundleName))
 				{
 					loader = temp;
 					break;
@@ -345,15 +345,6 @@ namespace YooAsset
 			// 重新排序
 			report.ProviderInfos.Sort();
 			return report;
-		}
-		internal static List<BundleInfo> GetLoadedBundleInfos()
-		{
-			List<BundleInfo> result = new List<BundleInfo>(100);
-			foreach (var bundleLoader in _loaders)
-			{
-				result.Add(bundleLoader.MainBundleInfo);
-			}
-			return result;
 		}
 		#endregion
 	}

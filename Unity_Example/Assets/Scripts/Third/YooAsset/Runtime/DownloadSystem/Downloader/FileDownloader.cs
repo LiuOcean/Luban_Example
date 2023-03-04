@@ -9,9 +9,8 @@ namespace YooAsset
 {
 	internal sealed class FileDownloader : DownloaderBase
 	{
-		private readonly bool _breakResume;
-		private UnityWebRequest _webRequest = null;
-		private DownloadHandlerFileRange _downloadHandle = null;
+		private UnityWebRequest _webRequest;
+		private UnityWebRequestAsyncOperation _operationHandle;
 
 		// 重置变量
 		private bool _isAbort = false;
@@ -20,9 +19,8 @@ namespace YooAsset
 		private float _tryAgainTimer;
 
 
-		public FileDownloader(BundleInfo bundleInfo, bool breakResume) : base(bundleInfo)
+		public FileDownloader(BundleInfo bundleInfo) : base(bundleInfo)
 		{
-			_breakResume = breakResume;
 		}
 		public override void Update()
 		{
@@ -31,31 +29,9 @@ namespace YooAsset
 			if (IsDone())
 				return;
 
-			// 检测本地文件
-			if (_steps == ESteps.CheckLocalFile)
-			{
-				var verifyResult = CacheSystem.VerifyAndCacheBundle(_bundleInfo.Bundle, EVerifyLevel.High);
-				if (verifyResult == EVerifyResult.Succeed)
-				{
-					_steps = ESteps.Succeed;
-				}
-				else
-				{
-					if (verifyResult == EVerifyResult.FileOverflow)
-					{
-						string cacheFilePath = _bundleInfo.Bundle.CachedFilePath;
-						if (File.Exists(cacheFilePath))
-							File.Delete(cacheFilePath);
-					}
-					_steps = ESteps.CreateDownload;
-				}
-			}
-
 			// 创建下载器
 			if (_steps == ESteps.CreateDownload)
 			{
-				string fileSavePath = _bundleInfo.Bundle.CachedFilePath;
-
 				// 重置变量
 				_downloadProgress = 0f;
 				_downloadedBytes = 0;
@@ -64,45 +40,14 @@ namespace YooAsset
 				_latestDownloadRealtime = Time.realtimeSinceStartup;
 				_tryAgainTimer = 0f;
 
-				// 是否开启断点续传下载	
-				if (_breakResume)
-				{
-					long fileLength = -1;
-					if (File.Exists(fileSavePath))
-					{
-						FileInfo fileInfo = new FileInfo(fileSavePath);
-						fileLength = fileInfo.Length;
-					}
-
-					_requestURL = GetRequestURL();
-					_webRequest = UnityWebRequest.Get(_requestURL);
-
-#if UNITY_2019_4_OR_NEWER
-					var handler = new DownloadHandlerFile(fileSavePath, true);
-					handler.removeFileOnAbort = false;
-#else
-					var handler = new DownloadHandlerFileRange(fileSavePath, _bundleInfo.Bundle.FileSize, _webRequest);
-					_downloadHandle = handler;
-#endif
-
-					_webRequest.downloadHandler = handler;
-					_webRequest.disposeDownloadHandlerOnDispose = true;
-					if (fileLength > 0)
-						_webRequest.SetRequestHeader("Range", $"bytes={fileLength}-");
-					_webRequest.SendWebRequest();
-					_steps = ESteps.CheckDownload;
-				}
-				else
-				{
-					_requestURL = GetRequestURL();
-					_webRequest = new UnityWebRequest(_requestURL, UnityWebRequest.kHttpVerbGET);
-					DownloadHandlerFile handler = new DownloadHandlerFile(fileSavePath);
-					handler.removeFileOnAbort = true;
-					_webRequest.downloadHandler = handler;
-					_webRequest.disposeDownloadHandlerOnDispose = true;
-					_webRequest.SendWebRequest();
-					_steps = ESteps.CheckDownload;
-				}
+				_requestURL = GetRequestURL();
+				_webRequest = new UnityWebRequest(_requestURL, UnityWebRequest.kHttpVerbGET);
+				DownloadHandlerFile handler = new DownloadHandlerFile(_bundleInfo.GetCacheLoadPath());
+				handler.removeFileOnAbort = true;
+				_webRequest.downloadHandler = handler;
+				_webRequest.disposeDownloadHandlerOnDispose = true;
+				_operationHandle = _webRequest.SendWebRequest();
+				_steps = ESteps.CheckDownload;
 			}
 
 			// 检测下载结果
@@ -110,15 +55,14 @@ namespace YooAsset
 			{
 				_downloadProgress = _webRequest.downloadProgress;
 				_downloadedBytes = _webRequest.downloadedBytes;
-				if (_webRequest.isDone == false)
+				if (_operationHandle.isDone == false)
 				{
 					CheckTimeout();
 					return;
 				}
 
-				bool hasError = false;
-
 				// 检查网络错误
+				bool hasError = false;
 #if UNITY_2020_3_OR_NEWER
 				if (_webRequest.result != UnityWebRequest.Result.Success)
 				{
@@ -136,29 +80,24 @@ namespace YooAsset
 				// 检查文件完整性
 				if (hasError == false)
 				{
-					var verifyResult = CacheSystem.VerifyAndCacheBundle(_bundleInfo.Bundle, EVerifyLevel.High);
-					if (verifyResult != EVerifyResult.Succeed)
+					// 注意：如果文件验证失败需要删除文件				
+					if (DownloadSystem.CheckContentIntegrity(_bundleInfo.GetCacheLoadPath(), _bundleInfo.FileSize, _bundleInfo.FileCRC) == false)
 					{
 						hasError = true;
-						_lastError = $"Verify bundle content failed : {_bundleInfo.Bundle.FileName}";
-
-						// 验证失败后删除文件
-						string cacheFilePath = _bundleInfo.Bundle.CachedFilePath;
-						if (File.Exists(cacheFilePath))
-							File.Delete(cacheFilePath);
+						_lastError = $"Verification failed";
 					}
 				}
 
-				// 如果下载失败
-				if (hasError)
+				if (hasError == false)
 				{
-					// 注意：非断点续传下载失败后删除文件
-					if (_breakResume == false)
-					{
-						string cacheFilePath = _bundleInfo.Bundle.CachedFilePath;
-						if (File.Exists(cacheFilePath))
-							File.Delete(cacheFilePath);
-					}
+					_steps = ESteps.Succeed;
+					DownloadSystem.CacheVerifyFile(_bundleInfo.FileHash, _bundleInfo.FileName);
+				}
+				else
+				{
+					string cacheFilePath = _bundleInfo.GetCacheLoadPath();
+					if (File.Exists(cacheFilePath))
+						File.Delete(cacheFilePath);
 
 					// 失败后重新尝试
 					if (_failedTryAgain > 0)
@@ -171,11 +110,6 @@ namespace YooAsset
 						ReportError();
 						_steps = ESteps.Failed;
 					}
-				}
-				else
-				{
-					_lastError = string.Empty;
-					_steps = ESteps.Succeed;
 				}
 
 				// 释放下载器
@@ -226,16 +160,11 @@ namespace YooAsset
 		}
 		private void DisposeWebRequest()
 		{
-			if(_downloadHandle != null)
-			{
-				_downloadHandle.Cleanup();
-				_downloadHandle = null;
-			}
-
 			if (_webRequest != null)
 			{
 				_webRequest.Dispose();
 				_webRequest = null;
+				_operationHandle = null;
 			}
 		}
 	}

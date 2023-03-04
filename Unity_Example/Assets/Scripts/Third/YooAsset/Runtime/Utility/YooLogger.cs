@@ -7,7 +7,7 @@ namespace YooAsset
 		/// <summary>
 		/// 日志
 		/// </summary>
-		[Conditional("DEBUG")]
+		[Conditional("UNITY_EDITOR")]
 		public static void Log(string info)
 		{
 			UnityEngine.Debug.Log(info);

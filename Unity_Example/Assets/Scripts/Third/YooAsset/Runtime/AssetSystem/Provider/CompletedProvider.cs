@@ -20,12 +20,12 @@ namespace YooAsset
 		public override void Update()
 		{
 		}
-		public void SetCompleted(string error)
+		public void SetCompleted()
 		{
 			if (Status == EStatus.None)
 			{
 				Status = EStatus.Fail;
-				LastError = error;
+				LastError = MainAssetInfo.Error;
 				InvokeCompletion();
 			}
 		}

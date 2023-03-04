@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace YooAsset
 {
-	public static partial class YooAssets
+	public static class YooAssets
 	{
 		/// <summary>
 		/// 运行模式
@@ -100,17 +100,10 @@ namespace YooAsset
 			/// </summary>
 			public bool ClearCacheWhenDirty = false;
 
-#if UNITY_WEBGL
-			/// <summary>
-			/// WEBGL模式不支持多线程下载
-			/// </summary>
-			internal int BreakpointResumeFileSize = int.MaxValue;
-#else
 			/// <summary>
 			/// 启用断点续传功能的文件大小
 			/// </summary>
 			public int BreakpointResumeFileSize = int.MaxValue;
-#endif
 
 			/// <summary>
 			/// 下载文件校验等级
@@ -201,14 +194,12 @@ namespace YooAsset
 			// 初始化下载系统
 			if (_playMode == EPlayMode.HostPlayMode)
 			{
+#if UNITY_WEBGL
+				throw new Exception($"{EPlayMode.HostPlayMode} not supports WebGL platform !");
+#else
 				var hostPlayModeParameters = parameters as HostPlayModeParameters;
-				CacheSystem.Initialize(hostPlayModeParameters.VerifyLevel);
-				DownloadSystem.Initialize(hostPlayModeParameters.BreakpointResumeFileSize);
-			}
-			else
-			{
-				CacheSystem.Initialize(EVerifyLevel.Low);
-				DownloadSystem.Initialize(int.MaxValue);
+				DownloadSystem.Initialize(hostPlayModeParameters.BreakpointResumeFileSize, hostPlayModeParameters.VerifyLevel);
+#endif
 			}
 
 			// 初始化资源系统
@@ -267,13 +258,13 @@ namespace YooAsset
 			if (_playMode == EPlayMode.EditorSimulateMode)
 			{
 				var operation = new EditorPlayModeUpdateStaticVersionOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.OfflinePlayMode)
 			{
 				var operation = new OfflinePlayModeUpdateStaticVersionOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.HostPlayMode)
@@ -294,17 +285,16 @@ namespace YooAsset
 		public static UpdateManifestOperation UpdateManifestAsync(int resourceVersion, int timeout = 60)
 		{
 			DebugCheckInitialize();
-			DebugCheckUpdateManifest();
 			if (_playMode == EPlayMode.EditorSimulateMode)
 			{
 				var operation = new EditorPlayModeUpdateManifestOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.OfflinePlayMode)
 			{
 				var operation = new OfflinePlayModeUpdateManifestOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.HostPlayMode)
@@ -328,13 +318,13 @@ namespace YooAsset
 			if (_playMode == EPlayMode.EditorSimulateMode)
 			{
 				var operation = new EditorPlayModeUpdateManifestOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.OfflinePlayMode)
 			{
 				var operation = new OfflinePlayModeUpdateManifestOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.HostPlayMode)
@@ -351,9 +341,9 @@ namespace YooAsset
 		/// 开启一个异步操作
 		/// </summary>
 		/// <param name="operation">异步操作对象</param>
-		public static void StartOperation(GameAsyncOperation operation)
+		public static void StartOperaiton(GameAsyncOperation operation)
 		{
-			OperationSystem.StartOperation(operation);
+			OperationSystem.StartOperaiton(operation);
 		}
 
 		/// <summary>
@@ -519,39 +509,36 @@ namespace YooAsset
 			if (assetInfo.IsInvalid)
 			{
 				RawFileOperation operation = new CompletedRawFileOperation(assetInfo.Error, copyPath);
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 
 			BundleInfo bundleInfo = _bundleServices.GetBundleInfo(assetInfo);
-
-#if UNITY_EDITOR
-			if (bundleInfo.Bundle.IsRawFile == false)
+			if (bundleInfo.IsRawFile == false)
 			{
-				string error = $"Cannot load asset bundle file using {nameof(GetRawFileAsync)} method !";
-				YooLogger.Error(error);
+				string error = $"Cannot load asset bundle file using {nameof(GetRawFileAsync)} interfaces !";
+				YooLogger.Warning(error);
 				RawFileOperation operation = new CompletedRawFileOperation(error, copyPath);
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
-#endif
 
 			if (_playMode == EPlayMode.EditorSimulateMode)
 			{
 				RawFileOperation operation = new EditorPlayModeRawFileOperation(bundleInfo, copyPath);
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.OfflinePlayMode)
 			{
 				RawFileOperation operation = new OfflinePlayModeRawFileOperation(bundleInfo, copyPath);
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.HostPlayMode)
 			{
 				RawFileOperation operation = new HostPlayModeRawFileOperation(bundleInfo, copyPath);
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else
@@ -671,18 +658,6 @@ namespace YooAsset
 
 		private static AssetOperationHandle LoadAssetInternal(AssetInfo assetInfo, bool waitForAsyncComplete)
 		{
-#if UNITY_EDITOR
-			BundleInfo bundleInfo = _bundleServices.GetBundleInfo(assetInfo);
-			if (bundleInfo.Bundle.IsRawFile)
-			{
-				string error = $"Cannot load raw file using LoadAsset method !";
-				YooLogger.Error(error);
-				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted(error);
-				return completedProvider.CreateHandle<AssetOperationHandle>();
-			}
-#endif
-
 			var handle = AssetSystem.LoadAssetAsync(assetInfo);
 			if (waitForAsyncComplete)
 				handle.WaitForAsyncComplete();
@@ -767,18 +742,6 @@ namespace YooAsset
 
 		private static SubAssetsOperationHandle LoadSubAssetsInternal(AssetInfo assetInfo, bool waitForAsyncComplete)
 		{
-#if UNITY_EDITOR
-			BundleInfo bundleInfo = _bundleServices.GetBundleInfo(assetInfo);
-			if (bundleInfo.Bundle.IsRawFile)
-			{
-				string error = $"Cannot load raw file using LoadSubAssets method !";
-				YooLogger.Error(error);
-				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted(error);
-				return completedProvider.CreateHandle<SubAssetsOperationHandle>();
-			}
-#endif
-
 			var handle = AssetSystem.LoadSubAssetsAsync(assetInfo);
 			if (waitForAsyncComplete)
 				handle.WaitForAsyncComplete();
@@ -993,13 +956,13 @@ namespace YooAsset
 			if (_playMode == EPlayMode.EditorSimulateMode)
 			{
 				var operation = new EditorPlayModeUpdatePackageOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.OfflinePlayMode)
 			{
 				var operation = new OfflinePlayModeUpdatePackageOperation();
-				OperationSystem.StartOperation(operation);
+				OperationSystem.StartOperaiton(operation);
 				return operation;
 			}
 			else if (_playMode == EPlayMode.HostPlayMode)
@@ -1041,55 +1004,30 @@ namespace YooAsset
 		/// <summary>
 		/// 清空未被使用的缓存文件
 		/// </summary>
-		public static ClearUnusedCacheFilesOperation ClearUnusedCacheFiles()
+		public static void ClearUnusedCacheFiles()
 		{
-			DebugCheckInitialize();
-			if (_playMode == EPlayMode.EditorSimulateMode)
-			{
-				var operation = new EditorPlayModeClearUnusedCacheFilesOperation();
-				OperationSystem.StartOperation(operation);
-				return operation;
-			}
-			else if (_playMode == EPlayMode.OfflinePlayMode)
-			{
-				var operation = new OfflinePlayModeClearUnusedCacheFilesOperation();
-				OperationSystem.StartOperation(operation);
-				return operation;
-			}
-			else if (_playMode == EPlayMode.HostPlayMode)
-			{
-				var operation = new HostPlayModeClearUnusedCacheFilesOperation(_hostPlayModeImpl);
-				OperationSystem.StartOperation(operation);
-				return operation;
-			}
-			else
-			{
-				throw new NotImplementedException();
-			}
+			if (_playMode == EPlayMode.HostPlayMode)
+				_hostPlayModeImpl.ClearUnusedCacheFiles();
 		}
 		#endregion
 
 		#region 内部方法
 		internal static void InternalDestroy()
 		{
-			if (_isInitialize)
-			{
-				_isInitialize = false;
-				_initializeError = string.Empty;
-				_initializeStatus = EOperationStatus.None;
+			_isInitialize = false;
+			_initializeError = string.Empty;
+			_initializeStatus = EOperationStatus.None;
 
-				_bundleServices = null;
-				_locationServices = null;
-				_editorSimulateModeImpl = null;
-				_offlinePlayModeImpl = null;
-				_hostPlayModeImpl = null;
+			_bundleServices = null;
+			_locationServices = null;
+			_editorSimulateModeImpl = null;
+			_offlinePlayModeImpl = null;
+			_hostPlayModeImpl = null;
 
-				OperationSystem.DestroyAll();
-				DownloadSystem.DestroyAll();
-				CacheSystem.DestroyAll();
-				AssetSystem.DestroyAll();
-				YooLogger.Log("YooAssets destroy all !");
-			}
+			OperationSystem.DestroyAll();
+			DownloadSystem.DestroyAll();
+			AssetSystem.DestroyAll();
+			YooLogger.Log("YooAssets destroy all !");
 		}
 		internal static void InternalUpdate()
 		{
@@ -1132,16 +1070,6 @@ namespace YooAsset
 
 				if (location.IndexOfAny(System.IO.Path.GetInvalidPathChars()) >= 0)
 					YooLogger.Warning($"Found illegal character in location : \"{location}\"");
-			}
-		}
-
-		[Conditional("DEBUG")]
-		private static void DebugCheckUpdateManifest()
-		{
-			var loadedBundleInfos = AssetSystem.GetLoadedBundleInfos();
-			if (loadedBundleInfos.Count > 0)
-			{
-				YooLogger.Warning($"Found loaded bundle before update manifest ! Recommended to call the  {nameof(ForceUnloadAllAssets)} method to release loaded bundle !");
 			}
 		}
 		#endregion

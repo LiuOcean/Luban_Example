@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEngine;
 
 namespace YooAsset.Editor
 {
@@ -14,11 +13,6 @@ namespace YooAsset.Editor
 		/// 注意：支持文件夹或单个资源文件
 		/// </summary>
 		public string CollectPath = string.Empty;
-
-		/// <summary>
-		/// 收集器的GUID
-		/// </summary>
-		public string CollectorGUID = string.Empty;
 
 		/// <summary>
 		/// 收集器类型
@@ -74,8 +68,7 @@ namespace YooAsset.Editor
 		/// </summary>
 		public void CheckConfigError()
 		{
-			string assetGUID = AssetDatabase.AssetPathToGUID(CollectPath);
-			if (string.IsNullOrEmpty(assetGUID))
+			if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(CollectPath) == null)
 				throw new Exception($"Invalid collect path : {CollectPath}");
 
 			if (CollectorType == ECollectorType.None)
@@ -89,44 +82,6 @@ namespace YooAsset.Editor
 
 			if (AssetBundleCollectorSettingData.HasAddressRuleName(AddressRuleName) == false)
 				throw new Exception($"Invalid {nameof(IAddressRule)} class type : {AddressRuleName} in collector : {CollectPath}");
-		}
-
-		/// <summary>
-		/// 修复配置错误
-		/// </summary>
-		public bool FixConfigError()
-		{
-			bool isFixed = false;
-
-			if (string.IsNullOrEmpty(CollectorGUID) == false)
-			{
-				string convertAssetPath = AssetDatabase.GUIDToAssetPath(CollectorGUID);
-				if (string.IsNullOrEmpty(convertAssetPath))
-				{
-					Debug.LogWarning($"Collector GUID {CollectorGUID} is invalid and has been auto removed !");
-					CollectorGUID = string.Empty;
-					isFixed = true;
-				}
-				else
-				{
-					if (CollectPath != convertAssetPath)
-					{
-						CollectPath = convertAssetPath;
-						isFixed = true;
-						Debug.LogWarning($"Fix collect path : {CollectPath} -> {convertAssetPath}");
-					}
-				}
-			}
-
-			/*
-			string convertGUID = AssetDatabase.AssetPathToGUID(CollectPath);
-			if(string.IsNullOrEmpty(convertGUID) == false)
-			{
-				CollectorGUID = convertGUID;
-			}
-			*/
-
-			return isFixed;
 		}
 
 		/// <summary>
@@ -229,6 +184,11 @@ namespace YooAsset.Editor
 				UnityEngine.Debug.LogError($"Invalid asset path : {assetPath}");
 				return false;
 			}
+			if (assetPath.Contains("/Gizmos/"))
+			{
+				UnityEngine.Debug.LogWarning($"Cannot pack gizmos asset : {assetPath}");
+				return false;
+			}
 
 			// 忽略文件夹
 			if (AssetDatabase.IsValidFolder(assetPath))
@@ -240,28 +200,17 @@ namespace YooAsset.Editor
 				return false;
 
 			// 忽略Unity无法识别的无效文件
-			/*
 			if (type == typeof(UnityEditor.DefaultAsset))
 			{
 				UnityEngine.Debug.LogWarning($"Cannot pack default asset : {assetPath}");
 				return false;
 			}
-			*/
 
-			string fileExtension = System.IO.Path.GetExtension(assetPath);
-			if (IsIgnoreFile(fileExtension))
+			string ext = System.IO.Path.GetExtension(assetPath);
+			if (ext == "" || ext == ".dll" || ext == ".cs" || ext == ".js" || ext == ".boo" || ext == ".meta" || ext == ".cginc")
 				return false;
 
 			return true;
-		}
-		private bool IsIgnoreFile(string fileExtension)
-		{
-			foreach (var extension in YooAssetSettings.IgnoreFileExtensions)
-			{
-				if (extension == fileExtension)
-					return true;
-			}
-			return false;
 		}
 		private bool IsCollectAsset(string assetPath)
 		{

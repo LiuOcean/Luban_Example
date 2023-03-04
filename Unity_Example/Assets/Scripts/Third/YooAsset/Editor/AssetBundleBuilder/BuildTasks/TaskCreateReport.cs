@@ -19,9 +19,11 @@ namespace YooAsset.Editor
 			{
 				CreateReportFile(buildParameters, buildMapContext);
 			}
-
-			float buildSeconds = buildParameters.GetBuildingSeconds();
-			BuildRunner.Info($"Build time consuming {buildSeconds} seconds.");
+			else
+			{
+				float buildSeconds = buildParameters.GetBuildingSeconds();
+				BuildRunner.Info($"Build time consuming {buildSeconds} seconds.");
+			}
 		}
 
 		private void CreateReportFile(BuildParametersContext buildParameters, BuildMapContext buildMapContext)
@@ -92,6 +94,7 @@ namespace YooAsset.Editor
 				ReportBundleInfo reportBundleInfo = new ReportBundleInfo();
 				reportBundleInfo.BundleName = patchBundle.BundleName;
 				reportBundleInfo.FileName = patchBundle.FileName;
+				reportBundleInfo.ContentHash = patchBundle.ContentHash;
 				reportBundleInfo.FileHash = patchBundle.FileHash;
 				reportBundleInfo.FileCRC = patchBundle.FileCRC;
 				reportBundleInfo.FileSize = patchBundle.FileSize;

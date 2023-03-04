@@ -15,8 +15,7 @@ namespace YooAsset.Editor
 	{
 		string IPackRule.GetBundleName(PackRuleData data)
 		{
-			string bundleName = StringUtility.RemoveExtension(data.AssetPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			return StringUtility.RemoveExtension(data.AssetPath);
 		}
 	}
 
@@ -33,8 +32,7 @@ namespace YooAsset.Editor
 
 		string IPackRule.GetBundleName(PackRuleData data)
 		{
-			string bundleName = Path.GetDirectoryName(data.AssetPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			return Path.GetDirectoryName(data.AssetPath);
 		}
 	}
 
@@ -57,7 +55,7 @@ namespace YooAsset.Editor
 				if (Path.HasExtension(splits[0]))
 					throw new Exception($"Not found root directory : {assetPath}");
 				string bundleName = $"{data.CollectPath}/{splits[0]}";
-				return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+				return bundleName;
 			}
 			else
 			{
@@ -74,8 +72,7 @@ namespace YooAsset.Editor
 	{
 		string IPackRule.GetBundleName(PackRuleData data)
 		{
-			string bundleName = StringUtility.RemoveExtension(data.CollectPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			return StringUtility.RemoveExtension(data.CollectPath);
 		}
 	}
 
@@ -113,8 +110,7 @@ namespace YooAsset.Editor
 			if (depends.Length != 1)
 				throw new Exception($"{nameof(PackRawFile)} is not support estension : {extension}");
 
-			string bundleName = StringUtility.RemoveExtension(data.AssetPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			return StringUtility.RemoveExtension(data.AssetPath);
 		}
 	}
 

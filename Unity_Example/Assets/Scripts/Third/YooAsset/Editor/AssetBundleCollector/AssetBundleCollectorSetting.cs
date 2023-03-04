@@ -31,26 +31,6 @@ namespace YooAsset.Editor
 		}
 
 		/// <summary>
-		/// 修复配置错误
-		/// </summary>
-		public bool FixConfigError()
-		{
-			bool result = false;
-			foreach (var group in Groups)
-			{
-				foreach (var collector in group.Collectors)
-				{
-					bool isFixed = collector.FixConfigError();
-					if (isFixed)
-					{
-						result = true;
-					}
-				}
-			}
-			return result;
-		}
-
-		/// <summary>
 		/// 获取所有的资源标签
 		/// </summary>
 		public List<string> GetAllTags()
@@ -94,7 +74,7 @@ namespace YooAsset.Editor
 					if (result.ContainsKey(assetInfo.AssetPath) == false)
 						result.Add(assetInfo.AssetPath, assetInfo);
 					else
-						throw new Exception($"The collecting asset file is existed : {assetInfo.AssetPath}");
+						throw new Exception($"The collecting asset file is existed : {assetInfo.AssetPath} in group setting.");
 				}
 			}
 
@@ -110,7 +90,7 @@ namespace YooAsset.Editor
 						if (adressTemper.Contains(address) == false)
 							adressTemper.Add(address);
 						else
-							throw new Exception($"The address is existed : {address}");
+							throw new Exception($"The address is existed : {address} in group setting.");
 					}
 				}
 			}
