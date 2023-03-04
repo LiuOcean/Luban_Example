@@ -18,6 +18,20 @@
 - 支持 `ref` 类型的代码生成及自动绑定
 - 异步使用的是 `UniTask` 
 
+## 示例内容
+
+使用 unity 打开 `Unity_Example` 目录，选择 `Scenes/SampleScene` 场景，运行即可查看配表示例
+
+> 示例的代码均写在 `UsageExample` 脚本中
+
+- YooAsset 初始化
+- 加载配表
+- 加载本地化
+- 单例表示例
+- 多主键表示例
+- ref 绑定示例
+- 本地化使用示例
+
 ## 有效性验证
 
 在每个导出的脚步中， 都会自动将 `.githooks/pre-commit` 文件强制复制到 `.git/hooks` 文件下（hook 想要生效，至少需要运行一次导出脚本）
