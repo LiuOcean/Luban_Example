@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Threading;
 using UnityEngine;
-#if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 using UnityEngine.UI;
-#endif
 
 namespace Cysharp.Threading.Tasks
 {
     public static class UnityBindingExtensions
     {
-#if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
         // <string> -> Text
 
         public static void BindTo(this IUniTaskAsyncEnumerable<string> source, Text text, bool rebindOnError = true)
@@ -183,7 +180,6 @@ namespace Cysharp.Threading.Tasks
                 }
             }
         }
-#endif
 
         // <T> -> Action
 

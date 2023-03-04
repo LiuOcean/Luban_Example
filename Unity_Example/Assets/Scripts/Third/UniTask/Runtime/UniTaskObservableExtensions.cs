@@ -74,19 +74,16 @@ namespace Cysharp.Threading.Tasks
 
         static async UniTaskVoid Fire<T>(AsyncSubject<T> subject, UniTask<T> task)
         {
-            T value;
             try
             {
-                value = await task;
+                var value = await task;
+                subject.OnNext(value);
+                subject.OnCompleted();
             }
             catch (Exception ex)
             {
                 subject.OnError(ex);
-                return;
             }
-
-            subject.OnNext(value);
-            subject.OnCompleted();
         }
 
         static async UniTaskVoid Fire(AsyncSubject<AsyncUnit> subject, UniTask task)
@@ -94,15 +91,13 @@ namespace Cysharp.Threading.Tasks
             try
             {
                 await task;
+                subject.OnNext(AsyncUnit.Default);
+                subject.OnCompleted();
             }
             catch (Exception ex)
             {
                 subject.OnError(ex);
-                return;
             }
-
-            subject.OnNext(AsyncUnit.Default);
-            subject.OnCompleted();
         }
 
         class ToUniTaskObserver<T> : IObserver<T>
@@ -133,7 +128,7 @@ namespace Cysharp.Threading.Tasks
             {
                 var self = (ToUniTaskObserver<T>)state;
                 self.disposable.Dispose();
-                self.promise.TrySetCanceled(self.cancellationToken);
+                self.promise.TrySetCanceled();
             }
 
             public void OnNext(T value)
@@ -203,7 +198,7 @@ namespace Cysharp.Threading.Tasks
             {
                 var self = (FirstValueToUniTaskObserver<T>)state;
                 self.disposable.Dispose();
-                self.promise.TrySetCanceled(self.cancellationToken);
+                self.promise.TrySetCanceled();
             }
 
             public void OnNext(T value)

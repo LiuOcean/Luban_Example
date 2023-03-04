@@ -1,5 +1,4 @@
-﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 using System;
 using System.Threading;
 using UnityEngine;
@@ -50,14 +49,14 @@ namespace Cysharp.Threading.Tasks
             return new AsyncUnityEventHandler(button.onClick, cancellationToken, false);
         }
 
-        public static UniTask OnClickAsync(this Button button)
+        public static AsyncUnityEventHandler OnClickAsync(this Button button)
         {
-            return new AsyncUnityEventHandler(button.onClick, button.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+            return new AsyncUnityEventHandler(button.onClick, button.GetCancellationTokenOnDestroy(), true);
         }
 
-        public static UniTask OnClickAsync(this Button button, CancellationToken cancellationToken)
+        public static AsyncUnityEventHandler OnClickAsync(this Button button, CancellationToken cancellationToken)
         {
-            return new AsyncUnityEventHandler(button.onClick, cancellationToken, true).OnInvokeAsync();
+            return new AsyncUnityEventHandler(button.onClick, cancellationToken, true);
         }
 
         public static IUniTaskAsyncEnumerable<AsyncUnit> OnClickAsAsyncEnumerable(this Button button)
@@ -822,5 +821,3 @@ namespace Cysharp.Threading.Tasks
         }
     }
 }
-
-#endif
