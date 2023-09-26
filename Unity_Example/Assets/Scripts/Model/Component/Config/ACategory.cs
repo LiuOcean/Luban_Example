@@ -22,7 +22,7 @@ namespace Example
 
         public abstract void TranslateText();
 
-        internal abstract void BindRef();
+        public abstract void BindRef();
     }
 
     public abstract class ACategory<T> : ACategory where T : AConfig
@@ -96,7 +96,7 @@ namespace Example
             dict.TrimExcess();
         }
 
-        internal sealed override void BindRef()
+        public override void BindRef()
         {
             foreach(var v in dict.Values)
             {

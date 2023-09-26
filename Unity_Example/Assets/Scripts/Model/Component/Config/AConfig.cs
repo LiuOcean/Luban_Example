@@ -8,8 +8,6 @@ namespace Example
         [JsonProperty]
         public int id { get; internal set; }
 
-        public virtual void TranslateText() { }
-
         public virtual void EndInit() { }
 
         public virtual void BindRef() { }

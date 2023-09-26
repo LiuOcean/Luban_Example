@@ -1,5 +1,5 @@
 ##,key,text_cn,text_en,text_tw
 ##type,string,string,string,string
-##comment,¶àÓïÑÔ key,ÖĞÎÄ,Ó¢ÎÄ,·±ÖĞ
-,example/one,µÚÒ»¸ö,First,µÚÒ»¸ö
-,example/second,µÚ¶ş¸ö,Second,µÚ¶ş¸ö
+##comment,å¤šè¯­è¨€ key,ä¸­æ–‡,è‹±æ–‡,ç¹ä¸­
+,example/one,ç¬¬ä¸€ä¸ª,First,ç¬¬ä¸€ä¸ª
+,example/two,ç¬¬äºŒä¸ª,Second,ç¬¬äºŒä¸ª

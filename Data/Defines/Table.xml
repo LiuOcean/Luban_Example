@@ -1,0 +1,15 @@
+<model>
+    <table name="GroupConfigCategory" value="GroupConfig" input="组剔除示例_GroupConfig.xlsx" output="GroupConfig" mode="" readSchemaFromFile="true" group=""/>
+    <table name="ShapeConfigCategory" value="ShapeConfig" input="多态示例_ShapeConfig.xlsx" output="ShapeConfig" mode="" readSchemaFromFile="true" group=""/>
+    <table name="RefOneConfigCategory" value="RefOneConfig" input="RefExample/001-RefOneConfig.xlsx" output="RefOneConfig" mode="" readSchemaFromFile="true" group=""/>
+    <table name="RefTwoConfigCategory" value="RefTwoConfig" input="RefExample/002-RefTwoConfig.xlsx" output="RefTwoConfig" mode="" readSchemaFromFile="true" group=""/>
+    <table name="RefGroupConfigCategory" value="RefGroupConfig" input="多表引用示例_RefGroupConfig.xlsx" output="RefGroupConfig" mode="" readSchemaFromFile="true" group=""/>
+    <table name="ExcludeConfigCategory" value="ExcludeConfig" input="剔除示例_ExcludeConfig.xlsx" output="ExcludeConfig" mode="" readSchemaFromFile="true" group=""/>
+    <table name="LocalizeExampleConfigCategory" value="LocalizeExampleConfig" input="本地化示例_LocalizeExampleConfig.xlsx" output="LocalizeExampleConfig" mode="" readSchemaFromFile="true" group=""/>
+    <table name="LocalizeConfig_CNCategory" value="LocalizeConfig_CN" input="I18N/LocalizeConfig.csv" output="LocalizeConfig_CN" mode="" readSchemaFromFile="flase" group="c"/>
+    <table name="LocalizeConfig_ENCategory" value="LocalizeConfig_EN" input="I18N/LocalizeConfig.csv" output="LocalizeConfig_EN" mode="" readSchemaFromFile="flase" group="c"/>
+    <table name="LocalizeConfig_TWCategory" value="LocalizeConfig_TW" input="I18N/LocalizeConfig.csv" output="LocalizeConfig_TW" mode="" readSchemaFromFile="flase" group="c"/>
+    <table name="MultipleKeyConfigCategory" value="MultipleKeyConfig" input="多主键示例_MultipleKeyConfig.xlsx" output="MultipleKeyConfig" mode="list" index="key_1+key_2+key_3" readSchemaFromFile="true" group=""/>
+    <table name="GlobalConfigCategory" value="GlobalConfig" input="单例示例_GlobalConfig.xlsx" output="GlobalConfig" mode="singleton" readSchemaFromFile="true" group=""/>
+    <table name="SingleRefConfigCategory" value="SingleRefConfig" input="单一引用示例_SingleRefConfig.xlsx" output="SingleRefConfig" mode="singleton" readSchemaFromFile="true" group=""/>
+</model>

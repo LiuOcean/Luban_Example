@@ -3,8 +3,8 @@
     "key": "example/one",
     "text_en": "First"
   },
-  "example/second": {
-    "key": "example/second",
+  "example/two": {
+    "key": "example/two",
     "text_en": "Second"
   }
 }

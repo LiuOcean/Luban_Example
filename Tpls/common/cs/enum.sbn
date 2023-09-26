@@ -1,0 +1,31 @@
+{{~
+    comment = __enum.comment
+    items = __enum.items
+~}}
+
+//using Sirenix.OdinInspector;
+
+{{namespace_with_grace_begin __namespace_with_top_module}} 
+{{~if comment != '' ~}}
+    /// <summary>
+    /// {{escape_comment comment}}
+    /// </summary>
+{{~end~}}
+    {{~if __enum.is_flags~}}
+    [System.Flags]
+    {{~end~}}
+    public enum {{__name}}
+    {
+        {{~ for item in items ~}}
+{{~if item.comment != '' ~}}
+        /// <summary>
+        /// {{escape_comment item.comment_or_alias}}
+        /// </summary>
+        // 导入 Odin 插件后, 修改 Tpls/common/cs/enum.tpl 即可
+        //[LabelText("{{escape_comment item.comment_or_alias}}")]
+{{~end~}}
+        {{format_enum_item_name __code_style item.name}} = {{item.value}},
+        {{~end~}}
+    }
+
+{{namespace_with_grace_end __namespace_with_top_module}}

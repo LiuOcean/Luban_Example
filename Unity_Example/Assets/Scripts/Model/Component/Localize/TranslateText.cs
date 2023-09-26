@@ -3,17 +3,30 @@ using Newtonsoft.Json;
 
 namespace Example
 {
-    [Serializable]
     public class TranslateText
     {
-        [JsonProperty]
-        public string key { get; private set; }
+        public string key { get; }
 
-        [JsonProperty]
         public string text { get; private set; }
 
-        public TranslateText() { LocalizeComponent.on_language_change += Translate; }
+        public TranslateText(string key)
+        {
+            this.key = key;
+            text     = key;
 
-        public void Translate() { text = LocalizeComponent.Instance.GetText(this); }
+            LocalizeComponent.on_language_change += Translate;
+
+            Translate();
+        }
+
+        public void Translate()
+        {
+            if(LocalizeComponent.Instance is null)
+            {
+                return;
+            }
+
+            text = LocalizeComponent.Instance.GetText(this);
+        }
     }
 }

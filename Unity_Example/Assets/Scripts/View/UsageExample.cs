@@ -42,7 +42,7 @@ namespace Example
             Debug.Log($"多主键表: {config}");
 
             // ref 绑定
-            var ref_config = ConfigComponent.Instance.Get<SingleRefConfig>(1);
+            var ref_config = SingleRefConfigCategory.Single;
 
             Debug.Log($"ref 绑定: {ref_config.ref_one_ref.id}");
 
