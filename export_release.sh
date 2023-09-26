@@ -19,8 +19,8 @@ dotnet $GEN_CLIENT \
     -x outputCodeDir=C#/Server \
     -x outputDataDir=Json/Server \
     -x tableExporter.json.compact=1 \
-    -x newtonsoft.dll=Example
-
+    -x newtonsoft.dll=Model \
+    -x newtonsoft.namespace=Example
 ./after_server.sh
 
 if [ $? -ne 0 ]; then
@@ -40,8 +40,8 @@ dotnet $GEN_CLIENT \
     -x outputCodeDir=C#/Client \
     -x outputDataDir=Json/Client \
     -x tableExporter.json.compact=1 \
-    -x newtonsoft.dll=Example 
-
+    -x newtonsoft.dll=Model \
+    -x newtonsoft.namespace=Example
 ./after_client.sh
 
 [ $PAUSE -eq 1 ] && echo "输入 Enter 继续" && read

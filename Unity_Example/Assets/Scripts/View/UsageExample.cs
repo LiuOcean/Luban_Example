@@ -19,7 +19,7 @@ namespace Example
 
             ViewAssetLoader loader = new ViewAssetLoader();
 
-            new ConfigComponent(new ConfigComponentConfig(loader, "Example", typeof(ConfigComponent).Assembly));
+            new ConfigComponent(new ConfigComponentConfig(loader));
 
             await ConfigComponent.Instance.Load();
 

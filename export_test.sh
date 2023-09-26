@@ -18,7 +18,8 @@ dotnet $GEN_CLIENT \
     --validationFailAsError \
     -x outputCodeDir=C#/Server \
     -x outputDataDir=Json/Server \
-    -x newtonsoft.dll=Example
+    -x newtonsoft.dll=Model \
+    -x newtonsoft.namespace=Example
 
 ./after_server.sh
 
@@ -38,8 +39,9 @@ dotnet $GEN_CLIENT \
     --validationFailAsError \
     -x outputCodeDir=C#/Client \
     -x outputDataDir=Json/Client \
-    -x newtonsoft.dll=Example
-
+    -x newtonsoft.dll=Model \
+    -x newtonsoft.namespace=Example
+    
 ./after_client.sh
 
 [ $PAUSE -eq 1 ] && echo "输入 Enter 继续" && read
