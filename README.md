@@ -6,6 +6,12 @@
 
 详细文档可查看 [官方文档](https://luban.doc.code-philosophy.com/docs/intro)
 
+## Luban.Plugins
+
+当前仓库使用的 Luban 为 [Luban_Plugins](https://github.com/LiuOcean/Luban_Plugins) 请注意区分
+
+主要对 Newtonsoft 在面对多态时的反序列化增加了对应的适配, 以及在面对被裁剪的数据行, 比如标记为 `test` 的行, 裁剪时标记为错误
+
 ## 功能介绍
 
 - 基于 `json` 的配表，使用 `NewtonSoft`
