@@ -11,51 +11,42 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using MemoryPack;
 
 namespace Example
 {
     [Config]
-    public partial class MultipleKeyConfigCategory : ACategory<MultipleKeyConfig>
+    [MemoryPackable]
+    public partial class MultipleKeyConfigCategory : ACategory
     {
-        public static MultipleKeyConfigCategory Instance { get; private set; }
 
-        public MultipleKeyConfigCategory()
+        public static MultipleKeyConfigCategory Instance { get; private set; }
+        
+        [MemoryPackConstructor]
+        public MultipleKeyConfigCategory(IReadOnlyList<MultipleKeyConfig> list)
         {
             Instance = this;
+            this.list = list;
         }
-
 
         private Dictionary<(string key_1,int key_2,long key_3), MultipleKeyConfig> _group = new();
 
-        public override AConfig GetOne()
+        [MemoryPackOrder(0)]
+        public readonly IReadOnlyList<MultipleKeyConfig> list;
+
+        public IReadOnlyDictionary<(string key_1,int key_2,long key_3), MultipleKeyConfig> GetAll()
         {
-            foreach(var v in _group.Values)
-            {
-                return v;
-            }
-            return null;
+            return _group;
         }
 
-        public override AConfig[] GetAll()
+        public MultipleKeyConfig Get(string key_1,int key_2,long key_3)
         {
-            return _group.Values.ToArray();
-        }
-        
-        public override AConfig TryGet(int id)
-        {
-            throw new NotImplementedException();
+            _group.TryGetValue((key_1,key_2,key_3), out var result);
+            return result;
         }
 
-        protected override void _CustomDeserialize(string json, JsonSerializerSettings settings)
+        public override void GenEndInit()
         {
-            var list = JsonConvert.DeserializeObject<List<MultipleKeyConfig>>(json, settings);
-            
-            foreach(var v in list)
-            {
-                v.EndInit();
-            }
-
             foreach(var v in list)
             {
                 _group.Add((v.key_1,v.key_2,v.key_3), v);
@@ -69,4 +60,3 @@ namespace Example
         }
     }
 }
-

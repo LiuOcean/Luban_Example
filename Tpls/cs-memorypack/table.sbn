@@ -1,0 +1,123 @@
+using System;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using UnityEngine;
+using MemoryPack;
+
+{{~
+func index_func(x)
+    result=''
+    for index in __table.index_list
+        result=result + (declaring_type_name index.index_field.ctype) + ' ' + (index.index_field.name) + ','
+    end
+    ret result | string.remove_last ','
+end
+func index_key_v(x)
+    result=''
+    for index in __table.index_list
+        result=result + 'v.' + (index.index_field.name) + ','
+    end
+    ret result | string.remove_last ','
+end
+func index_key(x)
+    result=''
+    for index in __table.index_list
+        result=result + (index.index_field.name) + ','
+    end
+    ret result | string.remove_last ','
+end
+~}}
+namespace Example
+{
+	{{~if __table.comment != '' ~}}
+    /// <summary>
+    /// {{escape_comment __table.comment}}
+    /// </summary>
+	{{~end~}}
+    [Config]
+    [MemoryPackable]
+    public partial class {{__table.name}} : ACategory
+    {
+    {{~if __table.is_singleton_table}}
+        public static {{declaring_type_name __value_type}} Single { get; private set; }
+
+        [MemoryPackOrder(0)]
+        public readonly {{declaring_type_name __value_type}} single;
+
+        [MemoryPackConstructor]
+        public {{__table.name}}({{declaring_type_name __value_type}} single)
+        {
+            this.single = single;
+        }
+
+        public override void GenEndInit() 
+        {
+            Single = single;
+        }
+
+    {{~else if __table.is_list_table~}}
+
+        public static {{__table.name}} Instance { get; private set; }
+        
+        [MemoryPackConstructor]
+        public {{__table.name}}(IReadOnlyList<{{declaring_type_name __value_type}}> list)
+        {
+            Instance = this;
+            this.list = list;
+        }
+
+        private Dictionary<({{index_func __table}}), {{declaring_type_name __value_type}}> _group = new();
+
+        [MemoryPackOrder(0)]
+        public readonly IReadOnlyList<{{declaring_type_name __value_type}}> list;
+
+        public IReadOnlyDictionary<({{index_func x}}), {{declaring_type_name __value_type}}> GetAll()
+        {
+            return _group;
+        }
+
+        public {{declaring_type_name __value_type}} Get({{index_func __table}})
+        {
+            _group.TryGetValue(({{index_key __table}}), out var result);
+            return result;
+        }
+
+        public override void GenEndInit()
+        {
+            foreach(var v in list)
+            {
+                _group.Add(({{index_key_v __table}}), v);
+            }
+        }
+
+        public {{declaring_type_name __value_type}} TryGet({{index_func __table}})
+        {
+            _group.TryGetValue(({{index_key __table}}), out var result);
+            return result;
+        }
+    {{~else~}}
+        public static {{__table.name}} Instance { get; private set; }
+        [MemoryPackConstructor]
+        public {{__table.name}}(IReadOnlyDictionary<{{declaring_type_name __key_type}}, {{declaring_type_name __value_type}}> dic)
+        {
+            Instance = this;
+            this.dic = dic;
+        }
+
+        [MemoryPackOrder(0)]
+        public readonly IReadOnlyDictionary<{{declaring_type_name __key_type}}, {{declaring_type_name __value_type}}> dic;
+
+        public {{declaring_type_name __value_type}} Get({{declaring_type_name __key_type}} key)
+        {
+            dic.TryGetValue(key, out var result);
+            return result;
+        }
+        
+        public IReadOnlyDictionary<{{declaring_type_name __key_type}}, {{declaring_type_name __value_type}}> GetAll() => dic;
+
+        public override void GenEndInit() 
+        {
+        }
+    {{~end~}}
+    }
+}

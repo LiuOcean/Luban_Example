@@ -10,35 +10,39 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class LocalizeExampleConfig : AConfig
+    [MemoryPackable]
+    
+    public  partial class LocalizeExampleConfig
     {
-    	/// <summary>
-    	/// 多语言
-    	/// </summary>
-        [JsonIgnore]
+        /// <summary>
+        /// ID
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public int  id { get; private set; }
+
+        /// <summary>
+        /// 多语言
+        /// </summary>
+        [MemoryPackIgnore]
         public string name => (_name ??= new TranslateText(_name_key)).text;
         
-        [JsonProperty("name")]
-        private string _name_key { get; set; }
+        [MemoryPackOrder(1)]
+        public string _name_key { get; private set; } 
 
-        [JsonIgnore]
+        [MemoryPackIgnore]
         private TranslateText _name { get; set; }
 
-        public override void EndInit() 
-        {
-            base.EndInit();
-        }
 
-        public override void BindRef() 
+        [MemoryPackConstructor]
+        public LocalizeExampleConfig(int id,string _name_key) 
         {
+        	this.id = id;
+        	this._name_key = _name_key;
         }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

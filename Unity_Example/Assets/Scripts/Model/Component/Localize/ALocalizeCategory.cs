@@ -14,8 +14,6 @@ namespace Example
 
         public abstract void Clear();
 
-        public abstract string Name();
-
         public abstract ALocalizeConfig GetData(string key);
 
         public abstract void TrimExcess();
@@ -62,8 +60,6 @@ namespace Example
         }
 
         public override void Clear() { _dict?.Clear(); }
-
-        public override string Name() { return typeof(T).Name; }
 
         public override ALocalizeConfig GetData(string key)
         {

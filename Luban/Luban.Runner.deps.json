@@ -13,6 +13,7 @@
           "Luban.CSharp": "1.0.0",
           "Luban.Cpp": "1.0.0",
           "Luban.DataTarget.Json.Newtonsoft": "1.0.0",
+          "Luban.DataTarget.MemoryPack": "1.0.0",
           "Luban.DataValidator.Builtin": "1.0.0",
           "Luban.DataValidator.Strict": "1.0.0",
           "Luban.FlatBuffers": "1.0.0",
@@ -56,6 +57,21 @@
           }
         }
       },
+      "MemoryPack/1.9.16": {
+        "dependencies": {
+          "MemoryPack.Core": "1.9.16",
+          "MemoryPack.Generator": "1.9.16"
+        }
+      },
+      "MemoryPack.Core/1.9.16": {
+        "runtime": {
+          "lib/net7.0/MemoryPack.Core.dll": {
+            "assemblyVersion": "1.9.16.0",
+            "fileVersion": "1.9.16.0"
+          }
+        }
+      },
+      "MemoryPack.Generator/1.9.16": {},
       "MessagePack/2.6.100-alpha": {
         "dependencies": {
           "MessagePack.Annotations": "2.6.100-alpha",
@@ -438,6 +454,17 @@
           "Luban.DataTarget.Json.Newtonsoft.dll": {}
         }
       },
+      "Luban.DataTarget.MemoryPack/1.0.0": {
+        "dependencies": {
+          "Luban.CSharp": "1.0.0",
+          "Luban.Core": "1.0.0",
+          "Luban.DataTarget.Json.Newtonsoft": "1.0.0",
+          "MemoryPack": "1.9.16"
+        },
+        "runtime": {
+          "Luban.DataTarget.MemoryPack.dll": {}
+        }
+      },
       "Luban.DataValidator.Builtin/1.0.0": {
         "dependencies": {
           "Luban.Core": "1.0.0"
@@ -581,6 +608,27 @@
       "sha512": "sha512-5j/OBUVWPTeRYlG3Dm4PSupyU6nJmbnnhPeqjePzCqtzrh5vErx8dToStuhTnG1ZYZ+dawGziC7DN1I6FEQH0g==",
       "path": "google.protobuf/3.24.0",
       "hashPath": "google.protobuf.3.24.0.nupkg.sha512"
+    },
+    "MemoryPack/1.9.16": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-nXh56/hVblv3bzoxbsdfQYf1yjt1gS4Cz4C/mL74HFtIT/vcKbBzWU4/FNgZMHnhyDxcCJvlNDM7FNvKdu15DA==",
+      "path": "memorypack/1.9.16",
+      "hashPath": "memorypack.1.9.16.nupkg.sha512"
+    },
+    "MemoryPack.Core/1.9.16": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+xJadRRrGxUbO0KGCid8UtzowuGDE023RZNTJ3Opg6stWeK3ISdW8obtfkAIC7ucbZkshtz7eWQu3N8fDTyoRA==",
+      "path": "memorypack.core/1.9.16",
+      "hashPath": "memorypack.core.1.9.16.nupkg.sha512"
+    },
+    "MemoryPack.Generator/1.9.16": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EvN5QmPoSLekOqnAdw+6fV7YAlIr06k+zmMDzd76Oig6qE80pqJcbyk/IOCEuCalkQkOSEaBjO/Y72thXCrehw==",
+      "path": "memorypack.generator/1.9.16",
+      "hashPath": "memorypack.generator.1.9.16.nupkg.sha512"
     },
     "MessagePack/2.6.100-alpha": {
       "type": "package",
@@ -886,6 +934,11 @@
       "sha512": ""
     },
     "Luban.DataTarget.Json.Newtonsoft/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Luban.DataTarget.MemoryPack/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

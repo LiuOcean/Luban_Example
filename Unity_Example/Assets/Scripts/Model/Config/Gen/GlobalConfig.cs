@@ -10,38 +10,33 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class GlobalConfig : AConfig
+    [MemoryPackable]
+    
+    public  partial class GlobalConfig
     {
-    	/// <summary>
-    	/// 默认音量
-    	/// </summary>
-        [JsonProperty("volume")]
-        private float _volume { get; set; }
+        /// <summary>
+        /// 默认音量
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public float  volume { get; private set; }
 
-        [JsonIgnore]
-        public EncryptFloat volume { get; private set; } = new();
-    	/// <summary>
-    	/// 默认 Icon 位置
-    	/// </summary>
-        [JsonProperty]
+        /// <summary>
+        /// 默认 Icon 位置
+        /// </summary>
+        [MemoryPackOrder(1)]
         public string  default_icon { get; private set; }
 
-        public override void EndInit() 
-        {
-            volume = _volume;
-            base.EndInit();
-        }
 
-        public override void BindRef() 
+        [MemoryPackConstructor]
+        public GlobalConfig(float volume,string default_icon) 
         {
+        	this.volume = volume;
+        	this.default_icon = default_icon;
         }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

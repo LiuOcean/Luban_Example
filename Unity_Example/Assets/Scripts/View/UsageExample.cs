@@ -19,9 +19,7 @@ namespace Example
 
             ViewAssetLoader loader = new ViewAssetLoader();
 
-            new ConfigComponent(new ConfigComponentConfig(loader));
-
-            await ConfigComponent.Instance.Load();
+            await ConfigLoader.Load(loader);
 
             new LocalizeComponent(
                 new LocalizeComponentConfig(
@@ -38,13 +36,8 @@ namespace Example
             Debug.Log($"单例表: {GlobalConfigCategory.Single.default_icon}");
 
             // 多主键表
-            var config = MultipleKeyConfigCategory.Instance.TryGet("First", 100, 200);
+            var config = MultipleKeyConfigCategory.Instance.Get("First", 100, 200);
             Debug.Log($"多主键表: {config}");
-
-            // ref 绑定
-            var ref_config = SingleRefConfigCategory.Single;
-
-            Debug.Log($"ref 绑定: {ref_config.ref_one_ref.id}");
 
             // 本地化使用
             var localize = LocalizeComponent.Instance.GetText("example/one");

@@ -11,20 +11,35 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using MemoryPack;
 
 namespace Example
 {
     [Config]
-    public partial class ShapeConfigCategory : ACategory<ShapeConfig>
+    [MemoryPackable]
+    public partial class ShapeConfigCategory : ACategory
     {
         public static ShapeConfigCategory Instance { get; private set; }
-
-        public ShapeConfigCategory()
+        [MemoryPackConstructor]
+        public ShapeConfigCategory(IReadOnlyDictionary<int, ShapeConfig> dic)
         {
             Instance = this;
+            this.dic = dic;
         }
 
+        [MemoryPackOrder(0)]
+        public readonly IReadOnlyDictionary<int, ShapeConfig> dic;
+
+        public ShapeConfig Get(int key)
+        {
+            dic.TryGetValue(key, out var result);
+            return result;
+        }
+        
+        public IReadOnlyDictionary<int, ShapeConfig> GetAll() => dic;
+
+        public override void GenEndInit() 
+        {
+        }
     }
 }
-

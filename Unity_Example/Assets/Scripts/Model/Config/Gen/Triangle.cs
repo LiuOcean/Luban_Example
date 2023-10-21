@@ -10,42 +10,31 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class Triangle : AShape
+    [MemoryPackable]
+    
+    public  partial class Triangle : AShape
     {
-        [JsonProperty("a")]
-        private float _a { get; set; }
+        [MemoryPackOrder(0)]
+        public float  a { get; private set; }
 
-        [JsonIgnore]
-        public EncryptFloat a { get; private set; } = new();
-        [JsonProperty("b")]
-        private float _b { get; set; }
+        [MemoryPackOrder(1)]
+        public float  b { get; private set; }
 
-        [JsonIgnore]
-        public EncryptFloat b { get; private set; } = new();
-        [JsonProperty("c")]
-        private float _c { get; set; }
+        [MemoryPackOrder(2)]
+        public float  c { get; private set; }
 
-        [JsonIgnore]
-        public EncryptFloat c { get; private set; } = new();
 
-        public override void EndInit() 
+        [MemoryPackConstructor]
+        public Triangle(float a,float b,float c) 
         {
-            a = _a;
-            b = _b;
-            c = _c;
-            base.EndInit();
+        	this.a = a;
+        	this.b = b;
+        	this.c = c;
         }
-
-        public override void BindRef() 
-        {
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

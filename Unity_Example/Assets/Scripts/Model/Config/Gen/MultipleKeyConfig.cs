@@ -10,47 +10,40 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class MultipleKeyConfig : AConfig
+    [MemoryPackable]
+    
+    public  partial class MultipleKeyConfig
     {
-    	/// <summary>
-    	/// 主键 1
-    	/// </summary>
-        [JsonProperty]
+        /// <summary>
+        /// 主键 1
+        /// </summary>
+        [MemoryPackOrder(0)]
         public string  key_1 { get; private set; }
-    	/// <summary>
-    	/// 主键 2
-    	/// </summary>
-        [JsonProperty("key_2")]
-        private int _key_2 { get; set; }
 
-        [JsonIgnore]
-        public EncryptInt key_2 { get; private set; } = new();
-    	/// <summary>
-    	/// 主键 4
-    	/// </summary>
-        [JsonProperty("key_3")]
-        private long _key_3 { get; set; }
+        /// <summary>
+        /// 主键 2
+        /// </summary>
+        [MemoryPackOrder(1)]
+        public int  key_2 { get; private set; }
 
-        [JsonIgnore]
-        public EncryptLong key_3 { get; private set; } = new();
+        /// <summary>
+        /// 主键 4
+        /// </summary>
+        [MemoryPackOrder(2)]
+        public long  key_3 { get; private set; }
 
-        public override void EndInit() 
+
+        [MemoryPackConstructor]
+        public MultipleKeyConfig(string key_1,int key_2,long key_3) 
         {
-            key_2 = _key_2;
-            key_3 = _key_3;
-            base.EndInit();
+        	this.key_1 = key_1;
+        	this.key_2 = key_2;
+        	this.key_3 = key_3;
         }
-
-        public override void BindRef() 
-        {
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

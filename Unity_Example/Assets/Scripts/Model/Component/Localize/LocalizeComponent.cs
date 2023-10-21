@@ -93,7 +93,7 @@ namespace Example
                 throw new ArgumentException($"[Localize] language is invalid, current = {_config.current_language}");
             }
 
-            var text_asset = await _Load<TextAsset>(_current.Name());
+            var text_asset = await _Load<TextAsset>(_current.GetType().Name);
 
             _current.Clear();
 

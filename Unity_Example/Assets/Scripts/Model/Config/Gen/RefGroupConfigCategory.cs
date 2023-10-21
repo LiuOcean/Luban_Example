@@ -11,20 +11,35 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using MemoryPack;
 
 namespace Example
 {
     [Config]
-    public partial class RefGroupConfigCategory : ACategory<RefGroupConfig>
+    [MemoryPackable]
+    public partial class RefGroupConfigCategory : ACategory
     {
         public static RefGroupConfigCategory Instance { get; private set; }
-
-        public RefGroupConfigCategory()
+        [MemoryPackConstructor]
+        public RefGroupConfigCategory(IReadOnlyDictionary<int, RefGroupConfig> dic)
         {
             Instance = this;
+            this.dic = dic;
         }
 
+        [MemoryPackOrder(0)]
+        public readonly IReadOnlyDictionary<int, RefGroupConfig> dic;
+
+        public RefGroupConfig Get(int key)
+        {
+            dic.TryGetValue(key, out var result);
+            return result;
+        }
+        
+        public IReadOnlyDictionary<int, RefGroupConfig> GetAll() => dic;
+
+        public override void GenEndInit() 
+        {
+        }
     }
 }
-

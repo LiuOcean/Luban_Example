@@ -11,49 +11,30 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using MemoryPack;
 
 namespace Example
 {
     [Config]
-    public partial class SingleRefConfigCategory : ACategory<SingleRefConfig>
+    [MemoryPackable]
+    public partial class SingleRefConfigCategory : ACategory
     {
-        public static SingleRefConfigCategory Instance { get; private set; }
-
-        public SingleRefConfigCategory()
-        {
-            Instance = this;
-        }
-
 
         public static SingleRefConfig Single { get; private set; }
 
-        public override AConfig GetOne()
+        [MemoryPackOrder(0)]
+        public readonly SingleRefConfig single;
+
+        [MemoryPackConstructor]
+        public SingleRefConfigCategory(SingleRefConfig single)
         {
-            throw new NotImplementedException();
+            this.single = single;
         }
 
-        public override AConfig[] GetAll()
+        public override void GenEndInit() 
         {
-            throw new NotImplementedException();
-        }
-        
-        public override AConfig TryGet(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void _CustomDeserialize(string json, JsonSerializerSettings settings)
-        {
-            Single = JsonConvert.DeserializeObject<SingleRefConfig>(json, settings);
-            Single.EndInit();
-        }
-
-        public override void BindRef()
-        {
-            Single.BindRef();
+            Single = single;
         }
 
     }
 }
-

@@ -2,7 +2,6 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 {{~
 func index_func(x)
@@ -29,14 +28,29 @@ end
 ~}}
 namespace Example
 {
-	{{~if __table.comment != '' ~}}
+{{~if __table.comment != '' ~}}
     /// <summary>
     /// {{escape_comment __table.comment}}
     /// </summary>
-	{{~end~}}
+{{~end~}}
     [Config]
-    public partial class {{__table.name}} : ACategory<{{declaring_type_name __value_type}}>
+    public partial class {{__table.name}} : ACategory
     {
+{{~if __table.is_singleton_table}}
+        public static {{declaring_type_name __value_type}} Single { get; private set; }
+
+        public override void BeginJsonInit(string json, JsonSerializerSettings settings) 
+        {
+             Single = JsonConvert.DeserializeObject<{{declaring_type_name __value_type}}>(json, settings);
+        }
+
+        public override void GenEndInit() 
+        {
+            Single.EndInit();
+        }
+
+        {{~else if __table.is_list_table~}}
+
         public static {{__table.name}} Instance { get; private set; }
 
         public {{__table.name}}()
@@ -44,79 +58,58 @@ namespace Example
             Instance = this;
         }
 
-    {{~if __table.is_singleton_table}}
-        public static {{declaring_type_name __value_type}} Single { get; private set; }
-
-        public override AConfig GetOne()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override AConfig[] GetAll()
-        {
-            throw new NotImplementedException();
-        }
-        
-        public override AConfig TryGet(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void _CustomDeserialize(string json, JsonSerializerSettings settings)
-        {
-            Single = JsonConvert.DeserializeObject<{{declaring_type_name __value_type}}>(json, settings);
-            Single.EndInit();
-        }
-
-        public override void BindRef()
-        {
-            Single.BindRef();
-        }
-
-        {{~else if __table.is_list_table~}}
-
         private Dictionary<({{index_func __table}}), {{declaring_type_name __value_type}}> _group = new();
 
-        public override AConfig GetOne()
+        private List<{{declaring_type_name __value_type}}> _list;
+
+        public override void BeginJsonInit(string json, JsonSerializerSettings settings) 
         {
-            foreach(var v in _group.Values)
-            {
-                return v;
-            }
-            return null;
+            _list = JsonConvert.DeserializeObject<List<{{declaring_type_name __value_type}}>>(json, settings);
         }
 
-        public override AConfig[] GetAll()
+        public IReadOnlyDictionary<({{index_func x}}), {{declaring_type_name __value_type}}> GetAll()
         {
-            return _group.Values.ToArray();
-        }
-        
-        public override AConfig TryGet(int id)
-        {
-            throw new NotImplementedException();
+            return _group;
         }
 
-        protected override void _CustomDeserialize(string json, JsonSerializerSettings settings)
-        {
-            var list = JsonConvert.DeserializeObject<List<{{declaring_type_name __value_type}}>>(json, settings);
-            
-            foreach(var v in list)
-            {
-                v.EndInit();
-            }
-
-            foreach(var v in list)
-            {
-                _group.Add(({{index_key_v __table}}), v);
-            }
-        }
-
-        public {{declaring_type_name __value_type}} TryGet({{index_func __table}})
+        public {{declaring_type_name __value_type}} Get({{index_func __table}})
         {
             _group.TryGetValue(({{index_key __table}}), out var result);
             return result;
         }
-        {{~else~}}
-    {{~end~}}
+
+        public override void GenEndInit() 
+        {
+            foreach(var v in _list) v?.EndInit();
+        }
+
+{{~else~}}
+        public static {{__table.name}} Instance { get; private set; }
+
+        public {{__table.name}}()
+        {
+            Instance = this;
+        }
+
+        private Dictionary<{{declaring_type_name __key_type}}, {{declaring_type_name __value_type}}> _dic;
+
+        public override void BeginJsonInit(string json, JsonSerializerSettings settings) 
+        {
+            _dic = JsonConvert.DeserializeObject<Dictionary<{{declaring_type_name __key_type}}, {{declaring_type_name __value_type}}>>(json, settings);
+        }
+
+        public {{declaring_type_name __value_type}} Get({{declaring_type_name __key_type}} key)
+        {
+            _dic.TryGetValue(key, out var result);
+            return result;
+        }
+        
+        public IReadOnlyDictionary<{{declaring_type_name __key_type}}, {{declaring_type_name __value_type}}> GetAll() => _dic;
+
+        public override void GenEndInit() 
+        {
+            foreach(var v in _dic.Values) v?.EndInit();
+        }
+{{~end~}}
     }
 }

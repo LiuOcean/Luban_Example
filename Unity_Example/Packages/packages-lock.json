@@ -143,7 +143,7 @@
       }
     },
     "com.unity.ide.rider": {
-      "version": "3.0.24",
+      "version": "3.0.26",
       "depth": 0,
       "source": "registry",
       "dependencies": {

@@ -10,38 +10,36 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class SingleRefConfig : AConfig
+    [MemoryPackable]
+    
+    public  partial class SingleRefConfig
     {
-    	/// <summary>
-    	/// 单一引用
-    	/// </summary>
-        [JsonProperty("ref_one")]
-        private int _ref_one { get; set; }
+        /// <summary>
+        /// ID
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public int  id { get; private set; }
 
-        [JsonIgnore]
-        public EncryptInt ref_one { get; private set; } = new();
+        /// <summary>
+        /// 单一引用
+        /// </summary>
+        [MemoryPackOrder(1)]
+        public int  ref_one { get; private set; }
 
-        [JsonIgnore]
+
+        [MemoryPackIgnore]
         public RefOneConfig ref_one_ref { get; private set; }
 
-        public override void EndInit() 
+        [MemoryPackConstructor]
+        public SingleRefConfig(int id,int ref_one) 
         {
-            ref_one = _ref_one;
-            base.EndInit();
+        	this.id = id;
+        	this.ref_one = ref_one;
         }
-
-        public override void BindRef() 
-        {
-
-            ref_one_ref = _GetRef<RefOneConfig>(ref_one);
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

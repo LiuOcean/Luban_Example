@@ -10,36 +10,27 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class Rectangle : AShape
+    [MemoryPackable]
+    
+    public  partial class Rectangle : AShape
     {
-        [JsonProperty("width")]
-        private float _width { get; set; }
+        [MemoryPackOrder(0)]
+        public float  width { get; private set; }
 
-        [JsonIgnore]
-        public EncryptFloat width { get; private set; } = new();
-        [JsonProperty("height")]
-        private float _height { get; set; }
+        [MemoryPackOrder(1)]
+        public float  height { get; private set; }
 
-        [JsonIgnore]
-        public EncryptFloat height { get; private set; } = new();
 
-        public override void EndInit() 
+        [MemoryPackConstructor]
+        public Rectangle(float width,float height) 
         {
-            width = _width;
-            height = _height;
-            base.EndInit();
+        	this.width = width;
+        	this.height = height;
         }
-
-        public override void BindRef() 
-        {
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

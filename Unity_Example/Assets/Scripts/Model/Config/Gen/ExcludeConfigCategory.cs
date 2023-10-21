@@ -11,20 +11,35 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using MemoryPack;
 
 namespace Example
 {
     [Config]
-    public partial class ExcludeConfigCategory : ACategory<ExcludeConfig>
+    [MemoryPackable]
+    public partial class ExcludeConfigCategory : ACategory
     {
         public static ExcludeConfigCategory Instance { get; private set; }
-
-        public ExcludeConfigCategory()
+        [MemoryPackConstructor]
+        public ExcludeConfigCategory(IReadOnlyDictionary<int, ExcludeConfig> dic)
         {
             Instance = this;
+            this.dic = dic;
         }
 
+        [MemoryPackOrder(0)]
+        public readonly IReadOnlyDictionary<int, ExcludeConfig> dic;
+
+        public ExcludeConfig Get(int key)
+        {
+            dic.TryGetValue(key, out var result);
+            return result;
+        }
+        
+        public IReadOnlyDictionary<int, ExcludeConfig> GetAll() => dic;
+
+        public override void GenEndInit() 
+        {
+        }
     }
 }
-

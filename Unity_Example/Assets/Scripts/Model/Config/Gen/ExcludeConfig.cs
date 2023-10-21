@@ -10,29 +10,33 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class ExcludeConfig : AConfig
+    [MemoryPackable]
+    
+    public  partial class ExcludeConfig
     {
-    	/// <summary>
-    	/// 名字
-    	/// </summary>
-        [JsonProperty]
+        /// <summary>
+        /// ID
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public int  id { get; private set; }
+
+        /// <summary>
+        /// 名字
+        /// </summary>
+        [MemoryPackOrder(1)]
         public string  name { get; private set; }
 
-        public override void EndInit() 
-        {
-            base.EndInit();
-        }
 
-        public override void BindRef() 
+        [MemoryPackConstructor]
+        public ExcludeConfig(int id,string name) 
         {
+        	this.id = id;
+        	this.name = name;
         }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

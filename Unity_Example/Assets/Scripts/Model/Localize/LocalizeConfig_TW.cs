@@ -14,7 +14,7 @@ namespace Example
     }
 
     [LocalizeConfig(SystemLanguage.ChineseTraditional)]
-    public class LocalizeConfig_TW_Category : ALocalizeCategory<LocalizeConfig_TW>
+    public class LocalizeConfig_TWCategory : ALocalizeCategory<LocalizeConfig_TW>
     {
     }
 }

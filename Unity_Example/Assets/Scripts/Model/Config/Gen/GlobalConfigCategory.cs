@@ -11,49 +11,30 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using MemoryPack;
 
 namespace Example
 {
     [Config]
-    public partial class GlobalConfigCategory : ACategory<GlobalConfig>
+    [MemoryPackable]
+    public partial class GlobalConfigCategory : ACategory
     {
-        public static GlobalConfigCategory Instance { get; private set; }
-
-        public GlobalConfigCategory()
-        {
-            Instance = this;
-        }
-
 
         public static GlobalConfig Single { get; private set; }
 
-        public override AConfig GetOne()
+        [MemoryPackOrder(0)]
+        public readonly GlobalConfig single;
+
+        [MemoryPackConstructor]
+        public GlobalConfigCategory(GlobalConfig single)
         {
-            throw new NotImplementedException();
+            this.single = single;
         }
 
-        public override AConfig[] GetAll()
+        public override void GenEndInit() 
         {
-            throw new NotImplementedException();
-        }
-        
-        public override AConfig TryGet(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void _CustomDeserialize(string json, JsonSerializerSettings settings)
-        {
-            Single = JsonConvert.DeserializeObject<GlobalConfig>(json, settings);
-            Single.EndInit();
-        }
-
-        public override void BindRef()
-        {
-            Single.BindRef();
+            Single = single;
         }
 
     }
 }
-

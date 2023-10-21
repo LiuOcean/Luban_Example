@@ -10,24 +10,22 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class AShape : AConfig
+    [MemoryPackable]
+    [MemoryPackUnion(0, typeof(Triangle))]
+    [MemoryPackUnion(1, typeof(Circle))]
+    [MemoryPackUnion(2, typeof(Rectangle))]
+    public abstract partial class AShape
     {
 
-        public override void EndInit() 
+        [MemoryPackConstructor]
+        public AShape() 
         {
-            base.EndInit();
+        
         }
-
-        public override void BindRef() 
-        {
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

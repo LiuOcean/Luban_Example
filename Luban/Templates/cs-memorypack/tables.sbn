@@ -1,0 +1,94 @@
+using System;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using InvokeType;
+using MemoryPack;
+
+namespace Example
+{
+    public abstract class ACategory
+    {
+        public abstract void GenEndInit();
+
+        public virtual void CustomEndInit() { }
+
+        public abstract void BindRef();
+    }
+
+    public static class ConfigLoader
+    {
+        public static async UniTask Load(int hash_code)
+        {
+            try
+            {
+                var       types     = Game.EventSystem.GetTypes(typeof(ConfigAttribute));
+                using var for_load  = ListComponent<ACategory>.Create();
+                using var tasks     = ListComponent<UniTask>.Create();
+                
+                foreach(Type type in types)
+                {
+                    var attrs = type.GetCustomAttributes(typeof(ConfigAttribute), true);
+
+                    if(attrs.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    tasks.Add(_Init(hash_code, type, for_load));
+
+                    if(tasks.Count < 50)
+                    {
+                        continue;
+                    }
+
+                    await UniTask.WhenAll(tasks.List);
+                    tasks.Clear();
+                }
+
+                if(tasks.Count > 0)
+                {
+                    await UniTask.WhenAll(tasks.List);
+                    tasks.Clear();
+                }
+
+                foreach(ACategory category in for_load.List)
+                {
+                    category.GenEndInit();
+                }
+
+                foreach(ACategory category in for_load.List)
+                {
+                    category.BindRef();
+                }
+
+                // 最后再调用自定义的 EndInit
+                foreach(var category in for_load.List)
+                {
+                    category.CustomEndInit();
+                }
+            }
+            catch(Exception e)
+            {
+                Log.Error(e);
+            }
+            finally
+            {
+                EventSystem.Instance.Invoke(new AssetRelease {hash = hash_code});
+            }
+        }
+
+        private static async UniTask<ACategory> _Init(int hash_code, Type type, ListComponent<ACategory> for_load)
+        {
+            var bytes = await EventSystem.Instance.Invoke<AssetLoader, UniTask<byte[]>>(
+                1,
+                new AssetLoader {hash = hash_code, path = type.Name}
+            );
+            
+            var category = MemoryPackSerializer.Deserialize(type, bytes) as ACategory;
+
+            for_load.Add(category);
+
+            return category;
+        }
+    }
+}

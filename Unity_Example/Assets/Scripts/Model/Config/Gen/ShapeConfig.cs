@@ -10,84 +10,68 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class ShapeConfig : AConfig
+    [MemoryPackable]
+    
+    public  partial class ShapeConfig
     {
-    	/// <summary>
-    	/// 别名 形状定义
-    	/// </summary>
-        [JsonProperty]
+        /// <summary>
+        /// ID
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public int  id { get; private set; }
+
+        /// <summary>
+        /// 别名 形状定义
+        /// </summary>
+        [MemoryPackOrder(1)]
         public AShape  alias_shape { get; private set; }
-    	/// <summary>
-    	/// 类名 形状定义
-    	/// </summary>
-        [JsonProperty]
+
+        /// <summary>
+        /// 类名 形状定义
+        /// </summary>
+        [MemoryPackOrder(2)]
         public AShape  name_shape { get; private set; }
-    	/// <summary>
-    	/// 定义在一个单元格内
-    	/// </summary>
-        [JsonProperty("in_one_shapes")]
-        private System.Collections.Generic.List<AShape> _in_one_shapes { get; set; }
-      
-        [JsonIgnore]
-        private IReadOnlyList<AShape> __in_one_shapes;
 
-        [JsonIgnore]
-        public IReadOnlyList<AShape> in_one_shapes => __in_one_shapes ??= _in_one_shapes.AsReadOnly();
-    	/// <summary>
-    	/// 多列展开
-    	/// </summary>
-        [JsonProperty("rows_shapes")]
-        private System.Collections.Generic.List<AShape> _rows_shapes { get; set; }
-      
-        [JsonIgnore]
-        private IReadOnlyList<AShape> __rows_shapes;
+        /// <summary>
+        /// 定义在一个单元格内
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public IReadOnlyList<AShape> in_one_shapes { get; private set;}
 
-        [JsonIgnore]
-        public IReadOnlyList<AShape> rows_shapes => __rows_shapes ??= _rows_shapes.AsReadOnly();
-    	/// <summary>
-    	/// 多列全展开
-    	/// </summary>
-        [JsonProperty("rows_sep_shapes")]
-        private System.Collections.Generic.List<AShape> _rows_sep_shapes { get; set; }
-      
-        [JsonIgnore]
-        private IReadOnlyList<AShape> __rows_sep_shapes;
+        /// <summary>
+        /// 多列展开
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public IReadOnlyList<AShape> rows_shapes { get; private set;}
 
-        [JsonIgnore]
-        public IReadOnlyList<AShape> rows_sep_shapes => __rows_sep_shapes ??= _rows_sep_shapes.AsReadOnly();
-    	/// <summary>
-    	/// 按列展开
-    	/// </summary>
-        [JsonProperty("colums_shapes")]
-        private System.Collections.Generic.List<AShape> _colums_shapes { get; set; }
-      
-        [JsonIgnore]
-        private IReadOnlyList<AShape> __colums_shapes;
+        /// <summary>
+        /// 多列全展开
+        /// </summary>
+        [MemoryPackOrder(5)]
+        public IReadOnlyList<AShape> rows_sep_shapes { get; private set;}
 
-        [JsonIgnore]
-        public IReadOnlyList<AShape> colums_shapes => __colums_shapes ??= _colums_shapes.AsReadOnly();
+        /// <summary>
+        /// 按列展开
+        /// </summary>
+        [MemoryPackOrder(6)]
+        public IReadOnlyList<AShape> colums_shapes { get; private set;}
 
-        public override void EndInit() 
+
+        [MemoryPackConstructor]
+        public ShapeConfig(int id,AShape alias_shape,AShape name_shape,IReadOnlyList<AShape> in_one_shapes,IReadOnlyList<AShape> rows_shapes,IReadOnlyList<AShape> rows_sep_shapes,IReadOnlyList<AShape> colums_shapes) 
         {
-            alias_shape?.EndInit();
-            name_shape?.EndInit();
-            foreach(var _e in in_one_shapes) { _e?.EndInit(); }
-            foreach(var _e in rows_shapes) { _e?.EndInit(); }
-            foreach(var _e in rows_sep_shapes) { _e?.EndInit(); }
-            foreach(var _e in colums_shapes) { _e?.EndInit(); }
-            base.EndInit();
+        	this.id = id;
+        	this.alias_shape = alias_shape;
+        	this.name_shape = name_shape;
+        	this.in_one_shapes = in_one_shapes;
+        	this.rows_shapes = rows_shapes;
+        	this.rows_sep_shapes = rows_sep_shapes;
+        	this.colums_shapes = colums_shapes;
         }
-
-        public override void BindRef() 
-        {
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

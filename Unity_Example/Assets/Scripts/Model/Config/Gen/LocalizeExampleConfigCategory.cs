@@ -11,20 +11,35 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using MemoryPack;
 
 namespace Example
 {
     [Config]
-    public partial class LocalizeExampleConfigCategory : ACategory<LocalizeExampleConfig>
+    [MemoryPackable]
+    public partial class LocalizeExampleConfigCategory : ACategory
     {
         public static LocalizeExampleConfigCategory Instance { get; private set; }
-
-        public LocalizeExampleConfigCategory()
+        [MemoryPackConstructor]
+        public LocalizeExampleConfigCategory(IReadOnlyDictionary<int, LocalizeExampleConfig> dic)
         {
             Instance = this;
+            this.dic = dic;
         }
 
+        [MemoryPackOrder(0)]
+        public readonly IReadOnlyDictionary<int, LocalizeExampleConfig> dic;
+
+        public LocalizeExampleConfig Get(int key)
+        {
+            dic.TryGetValue(key, out var result);
+            return result;
+        }
+        
+        public IReadOnlyDictionary<int, LocalizeExampleConfig> GetAll() => dic;
+
+        public override void GenEndInit() 
+        {
+        }
     }
 }
-

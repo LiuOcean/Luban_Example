@@ -5,6 +5,10 @@ namespace Example
 {
     public interface IAssetLoader
     {
-        UniTask<T> Load<T>(string name) where T : Object;
+        UniTask<T> Load<T>(string path) where T : Object;
+
+        UniTask<string> LoadJson(string path);
+
+        UniTask<byte[]> LoadBytes(string path);
     }
 }

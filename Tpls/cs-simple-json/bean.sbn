@@ -2,10 +2,12 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Encrypt;
+
 {{
     parent_def_type = __bean.parent_def_type
     export_fields = __bean.export_fields
     hierarchy_export_fields = __bean.hierarchy_export_fields
+    index = 1
 }}
 {{~
 func encrypt_type_name(x)
@@ -92,16 +94,15 @@ namespace Example
 	/// </summary>
 	{{~end~}}
     [Serializable]
-    public partial class {{__bean.name}} : {{if parent_def_type}}{{__bean.parent}}{{else}}AConfig{{end}}
+    public {{if __bean.is_abstract_type}}abstract{{end}} partial class {{__bean.name}}{{if parent_def_type}} : {{__bean.parent}}{{end}}
     {
     {{~ for field in export_fields ~}}
-		{{~if field.name != "id"~}}
-		    {{~if field.comment != '' ~}}
+		{{~if field.comment != '' ~}}
     	/// <summary>
     	/// {{escape_comment field.comment}}
     	/// </summary>
-		    {{~end~}}
-            {{~if has_tag field.ctype 'text'~}}
+		{{~end~}}
+        {{~if has_tag field.ctype 'text'~}}
         [JsonIgnore]
         public string {{field.name}} => (_{{field.name}} ??= new TranslateText(_{{field.name}}_key)).text;
         
@@ -110,20 +111,20 @@ namespace Example
 
         [JsonIgnore]
         private TranslateText _{{field.name}} { get; set; }
-            {{~else if field.ctype.type_name == "bean"~}}
+        {{~else if field.ctype.type_name == "bean"~}}
         [JsonProperty]
         public {{declaring_type_name field.ctype}}  {{field.name}} { get; private set; }
-            {{~else if is_encrypt_base_type field~}}
+        {{~else if is_encrypt_base_type field~}}
         {{property_name field}}
         private {{declaring_type_name field.ctype}} _{{field.name}} { get; set; }
 
         [JsonIgnore]
         public {{encrypt_type_name field}} {{field.name}} { get; private set; } = new();
-            {{~else if is_encrypt_list_type field~}}
+        {{~else if is_encrypt_list_type field~}}
 
         public {{declaring_type_name field.ctype}}  {{field.name}} { get; private set; }
 
-            {{~else if field.ctype.type_name == "list"~}}
+        {{~else if field.ctype.type_name == "list"~}}
         {{property_name field}}
         private {{declaring_type_name field.ctype}} _{{field.name}} { get; set; }
       
@@ -132,30 +133,15 @@ namespace Example
 
         [JsonIgnore]
         public IReadOnlyList<{{declaring_type_name field.ctype.element_type}}> {{field.name}} => __{{field.name}} ??= _{{field.name}}.AsReadOnly();
-            {{~else~}}
+        {{~else~}}
         [JsonProperty]
         public {{declaring_type_name field.ctype}}  {{field.name}} { get; private set; }
-            {{~end~}}
-        {{~ if can_generate_ref field ~}}
-            {{~ if is_field_array_like_need_resolve_ref field ~}}
-        [JsonIgnore]
-        private List<{{declaring_type_name (get_ref_type filed)}}> _{{field.name}}_ref { get; set; }
-        [JsonIgnore]
-        private IReadOnlyList<{{declaring_type_name (get_ref_type filed)}}> __{{field.name}}_ref;
-        [JsonIgnore]
-        public IReadOnlyList<{{declaring_type_name (get_ref_type filed)}}> {{field.name}}_ref => __{{field.name}}_ref ??= _{{field.name}}_ref.AsReadOnly();
-            {{~else}}
-        [JsonIgnore]
-        public {{declaring_type_name (get_ref_type field)}} {{field.name}}_ref { get; private set; }
-            {{~end~}}
         {{~end~}}
-		{{~end~}}
     {{~end~}}
 
-        public override void EndInit() 
+        public {{if __bean.is_abstract_type}}virtual{{else if parent_def_type}}override{{end}} void EndInit() 
         {
         {{~ for field in export_fields ~}}
-        {{~if field.name != "id"~}}
             {{~if is_encrypt_type field~}}
             {{field.name}} = _{{field.name}};
             {{~else if field.ctype.type_name == "bean"~}}
@@ -164,21 +150,9 @@ namespace Example
             foreach(var _e in {{field.name}}) { _e?.EndInit(); }
             {{~end~}}
         {{~end~}}
-        {{~end~}}
+        {{~ if parent_def_type~}}
             base.EndInit();
-        }
-
-        public override void BindRef() 
-        {
-            {{~ for field in export_fields ~}}
-            {{~ if can_generate_ref field ~}}
-                {{~ if is_field_array_like_need_resolve_ref field ~}}
-            _{{field.name}}_ref = _GetRefList<{{declaring_type_name (get_ref_type field)}}>({{field.name}});
-                {{~else}}
-            {{field.name}}_ref = _GetRef<{{declaring_type_name (get_ref_type field)}}>({{field.name}});
-                {{~end~}}
-            {{~end~}}
-            {{~end~}}
+        {{~end~}}
         }
 
         public override string ToString() => JsonConvert.SerializeObject(this);

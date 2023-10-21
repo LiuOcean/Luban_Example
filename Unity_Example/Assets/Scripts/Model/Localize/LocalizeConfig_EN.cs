@@ -14,7 +14,7 @@ namespace Example
     }
 
     [LocalizeConfig(SystemLanguage.English)]
-    public class LocalizeConfig_EN_Category : ALocalizeCategory<LocalizeConfig_EN>
+    public class LocalizeConfig_ENCategory : ALocalizeCategory<LocalizeConfig_EN>
     {
     }
 }

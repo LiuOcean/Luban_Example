@@ -1,0 +1,66 @@
+using System;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using MemoryPack;
+
+{{
+    parent_def_type = __bean.parent_def_type
+    export_fields = __bean.export_fields
+    hierarchy_export_fields = __bean.hierarchy_export_fields
+    index = 0
+}}
+namespace Example
+{
+	{{~if __bean.comment != '' ~}}
+	/// <summary>
+	/// {{x.escape_comment}}
+	/// </summary>
+	{{~end~}}
+    [MemoryPackable]
+    {{gen_union __bean}}
+    public {{if __bean.is_abstract_type}}abstract{{end}} partial class {{__bean.name}}{{if parent_def_type}} : {{__bean.parent}}{{end}}
+    {
+    {{~ for field in export_fields ~}}
+        {{~if field.comment != '' ~}}
+        /// <summary>
+        /// {{escape_comment field.comment}}
+        /// </summary>
+        {{~end~}}
+        {{~if has_tag field.ctype 'text'~}}
+        [MemoryPackIgnore]
+        public string {{field.name}} => (_{{field.name}} ??= new TranslateText(_{{field.name}}_key)).text;
+        
+        [MemoryPackOrder({{index++}})]
+        public string _{{field.name}}_key { get; private set; } 
+
+        [MemoryPackIgnore]
+        private TranslateText _{{field.name}} { get; set; }
+
+        {{~else if field.ctype.type_name == "bean"~}}
+        [MemoryPackOrder({{index++}})]
+        public {{declaring_type_name field.ctype}}  {{field.name}} { get; private set; }
+
+        {{~else if field.ctype.type_name == "list"~}}
+        [MemoryPackOrder({{index++}})]
+        public IReadOnlyList<{{declaring_type_name field.ctype.element_type}}> {{field.name}} { get; private set;}
+
+        {{~else~}}
+        [MemoryPackOrder({{index++}})]
+        public {{declaring_type_name field.ctype}}  {{field.name}} { get; private set; }
+
+        {{~end~}}
+        {{~ if can_generate_ref field ~}}
+            {{~ if is_field_array_like_need_resolve_ref field ~}}
+        [MemoryPackIgnore]
+        public IReadOnlyList<{{declaring_type_name (get_ref_type filed)}}> {{field.name}}_ref { get; private set; }
+        
+            {{~else}}
+        [MemoryPackIgnore]
+        public {{declaring_type_name (get_ref_type field)}} {{field.name}}_ref { get; private set; }
+            {{~end~}}
+        {{~end~}}
+    {{~end~}}
+
+        {{gen_config_constructor __bean}}
+    }
+}

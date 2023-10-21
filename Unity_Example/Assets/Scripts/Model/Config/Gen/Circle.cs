@@ -10,30 +10,23 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class Circle : AShape
+    [MemoryPackable]
+    
+    public  partial class Circle : AShape
     {
-        [JsonProperty("radius")]
-        private float _radius { get; set; }
+        [MemoryPackOrder(0)]
+        public float  radius { get; private set; }
 
-        [JsonIgnore]
-        public EncryptFloat radius { get; private set; } = new();
 
-        public override void EndInit() 
+        [MemoryPackConstructor]
+        public Circle(float radius) 
         {
-            radius = _radius;
-            base.EndInit();
+        	this.radius = radius;
         }
-
-        public override void BindRef() 
-        {
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-

@@ -10,24 +10,26 @@
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Encrypt;
+using MemoryPack;
+
 
 namespace Example
 {
-    [Serializable]
-    public partial class RefOneConfig : AConfig
+    [MemoryPackable]
+    
+    public  partial class RefOneConfig
     {
+        /// <summary>
+        /// ID
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public int  id { get; private set; }
 
-        public override void EndInit() 
+
+        [MemoryPackConstructor]
+        public RefOneConfig(int id) 
         {
-            base.EndInit();
+        	this.id = id;
         }
-
-        public override void BindRef() 
-        {
-        }
-
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
-
